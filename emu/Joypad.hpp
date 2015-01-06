@@ -18,41 +18,18 @@ enum PadKeys {
 class Joypad {
     Byte currentKeys;   // state of keys pressed in GUI, 1 = pressed
     Byte latestKeys;    // latest keys delivered to emulation core
-    Byte latches;
-
-    Byte getStateFor(Byte keys) {
-        Byte v = 0x0f;
-        if (!(latches & 0x1)) {
-            v &= ~(keys & 0x0f);
-        }
-        if (!(latches & 0x2)) {
-            v &= ~(keys >> 4);
-        }
-        return v;
-    }
 
 public:
     Joypad() :
             currentKeys(0),
-            latestKeys(0),
-            latches(0) {
+            latestKeys(0) {
     }
 
     bool tick() {
-        Byte oldSt = getStateFor(latestKeys);
-        Byte newSt = getStateFor(currentKeys);
-        bool ret = (oldSt ^ newSt) & oldSt;
-
-        latestKeys = currentKeys;
-        return ret;
+        return false;
     }
 
     void regAccess(Byte* pData, bool isWrite) {
-        if (isWrite) {
-            latches = (*pData >> 4) & 0x3;
-        } else {
-            *pData = getStateFor(latestKeys) | (latches << 4);
-        }
     }
 
     void keysPressed(Byte keys) {

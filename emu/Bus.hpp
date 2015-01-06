@@ -29,7 +29,6 @@ class Bus {
     IrqSet irqsPending;
 
     Byte ram[8192];
-    Byte hram[127];
 
     void memAccess(Word address, Byte* pData, bool isWrite, MemAccessType accessType);
 public:
@@ -42,7 +41,6 @@ public:
             irqsEnabled(0),
             irqsPending(0) {
         std::memset(ram, 0xAA, sizeof(ram));
-        std::memset(hram, 0xAA, sizeof(ram));
     }
 
     Byte memRead8(Word address, MemAccessType accessType = "CPU");

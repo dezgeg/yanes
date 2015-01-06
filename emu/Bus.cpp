@@ -10,22 +10,10 @@
 void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType accessType) {
     if (address <= 0xff) {
         rom->cartRomAccess(address, pData, isWrite);
-    } else if (address <= 0x7fff) {
-        rom->cartRomAccess(address, pData, isWrite);
     } else if (address <= 0xbfff) {
         rom->cartRamAccess(address & 0x1fff, pData, isWrite);
     } else if (address <= 0xfdff) {
         BusUtil::arrayMemAccess(ram, address & 0x1fff, pData, isWrite);
-    } else if (address == 0xff00) {
-        joypad->regAccess(pData, isWrite);
-    } else if (address == 0xff0f) {
-        BusUtil::simpleRegAccess(&irqsPending, pData, isWrite, 0x1f);
-    } else if (address >= 0xff10 && address <= 0xff3f) {
-        sound->registerAccess(address, pData, isWrite);
-    } else if (address >= 0xff80 && address <= 0xfffe) {
-        BusUtil::arrayMemAccess(hram, address - 0xff80, pData, isWrite);
-    } else if (address == 0xffff) {
-        BusUtil::simpleRegAccess(&irqsEnabled, pData, isWrite, 0x1f);
     } else {
         if (isWrite) {
             log->warn("Unhandled write (0x%02x) to address 0x%04X", *pData, address);
