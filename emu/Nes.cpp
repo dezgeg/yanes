@@ -1,6 +1,6 @@
-#include "Gameboy.hpp"
+#include "Nes.hpp"
 
-void Gameboy::runOneInstruction() {
+void Nes::runOneInstruction() {
     long newFrame = gpu.getCurrentFrame();
     log->setTimestamp(newFrame, gpu.getCurrentScanline(), currentCycle);
 

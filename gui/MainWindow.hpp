@@ -1,6 +1,6 @@
 #pragma once
 
-#include "emu/Gameboy.hpp"
+#include "emu/Nes.hpp"
 #include "emu/Logger.hpp"
 #include "emu/Rom.hpp"
 #include "AudioHandler.hpp"
@@ -37,7 +37,7 @@ private:
 
     GuiLogger log;
     Rom rom;
-    Gameboy gb;
+    Nes gb;
 
     long nextRenderAt;
     QTimer* frameTimer;

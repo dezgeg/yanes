@@ -28,7 +28,7 @@ union Regs {
 # error "You are using piss-poor hardware and are a loser; give up and get a real job."
 #endif
 
-class Gameboy;
+class Nes;
 
 class Cpu {
     Logger* log;

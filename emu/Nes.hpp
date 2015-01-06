@@ -9,7 +9,7 @@
 #include "Sound.hpp"
 #include "Timer.hpp"
 
-class Gameboy {
+class Nes {
     Logger* log;
     Bus bus;
     Gpu gpu;
@@ -21,7 +21,7 @@ class Gameboy {
     long currentCycle;
 
 public:
-    Gameboy(Logger* log, Rom* rom) :
+    Nes(Logger* log, Rom* rom) :
             log(log),
             bus(log, rom, &gpu, &timer, &joypad, &serial, &sound),
             gpu(log),
