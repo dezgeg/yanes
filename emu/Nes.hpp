@@ -7,14 +7,12 @@
 #include "Rom.hpp"
 #include "Serial.hpp"
 #include "Sound.hpp"
-#include "Timer.hpp"
 
 class Nes {
     Logger* log;
     Bus bus;
     Gpu gpu;
     Cpu cpu;
-    Timer timer;
     Joypad joypad;
     Serial serial;
     Sound sound;
@@ -23,10 +21,9 @@ class Nes {
 public:
     Nes(Logger* log, Rom* rom) :
             log(log),
-            bus(log, rom, &gpu, &timer, &joypad, &serial, &sound),
+            bus(log, rom, &gpu, &joypad, &serial, &sound),
             gpu(log),
             cpu(log, &bus),
-            timer(),
             joypad(),
             serial(),
             sound(log),
@@ -37,7 +34,6 @@ public:
     Cpu* getCpu() { return &cpu; }
     Gpu* getGpu() { return &gpu; }
     Sound* getSound() { return &sound; }
-    Timer* getTimer() { return &timer; }
     Joypad* getJoypad() { return &joypad; }
 
     void runOneInstruction();

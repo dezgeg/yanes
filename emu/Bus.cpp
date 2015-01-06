@@ -5,7 +5,6 @@
 #include "Rom.hpp"
 #include "Serial.hpp"
 #include "Sound.hpp"
-#include "Timer.hpp"
 
 #include <algorithm>
 
@@ -87,8 +86,6 @@ void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType acces
         joypad->regAccess(pData, isWrite);
     } else if (address >= 0xff01 && address <= 0xff02) {
         serial->regAccess(address - 0xff01, pData, isWrite);
-    } else if (address >= 0xff04 && address <= 0xff07) {
-        timer->regAccess(address, pData, isWrite);
     } else if (address == 0xff0f) {
         BusUtil::simpleRegAccess(&irqsPending, pData, isWrite, 0x1f);
     } else if (address >= 0xff10 && address <= 0xff3f) {

@@ -3,6 +3,11 @@
 #include "Irq.hpp"
 #include "Logger.hpp"
 #include "Platform.hpp"
+#include "Rom.hpp"
+#include "Gpu.hpp"
+#include "Joypad.hpp"
+#include "Serial.hpp"
+#include "Sound.hpp"
 
 #include <cstring>
 
@@ -16,13 +21,10 @@ class Serial;
 
 class Sound;
 
-class Timer;
-
 class Bus {
     Logger* log;
     Rom* rom;
     Gpu* gpu;
-    Timer* timer;
     Joypad* joypad;
     Serial* serial;
     Sound* sound;
@@ -44,11 +46,10 @@ class Bus {
     void disableBootrom();
 
 public:
-    Bus(Logger* log, Rom* rom, Gpu* gpu, Timer* timer, Joypad* joypad, Serial* serial, Sound* sound) :
+    Bus(Logger* log, Rom* rom, Gpu* gpu, Joypad* joypad, Serial* serial, Sound* sound) :
             log(log),
             rom(rom),
             gpu(gpu),
-            timer(timer),
             joypad(joypad),
             serial(serial),
             sound(sound),

@@ -11,9 +11,6 @@ void Nes::runOneInstruction() {
     int cycleDelta = cpu.tick();
 
     bus.tickDma(cycleDelta);
-    if (timer.tick(cycleDelta)) {
-        bus.raiseIrq(bit(Irq_Timer));
-    }
     if (serial.tick(cycleDelta)) {
         bus.raiseIrq(bit(Irq_Serial));
     }
