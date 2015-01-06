@@ -25,21 +25,13 @@ class Bus {
     Joypad* joypad;
     Sound* sound;
 
-    bool bootromEnabled;
-    bool dmaInProgress;
-    int dmaCycles;
-    Byte dmaSourcePage;
-
     IrqSet irqsEnabled;
     IrqSet irqsPending;
 
     Byte ram[8192];
     Byte hram[127];
 
-    void dmaRegAccess(Byte* pData, bool isWrite);
     void memAccess(Word address, Byte* pData, bool isWrite, MemAccessType accessType);
-    void disableBootrom();
-
 public:
     Bus(Logger* log, Rom* rom, Gpu* gpu, Joypad* joypad, Sound* sound) :
             log(log),
@@ -47,10 +39,6 @@ public:
             gpu(gpu),
             joypad(joypad),
             sound(sound),
-            bootromEnabled(true),
-            dmaInProgress(false),
-            dmaCycles(0),
-            dmaSourcePage(0),
             irqsEnabled(0),
             irqsPending(0) {
         std::memset(ram, 0xAA, sizeof(ram));
@@ -66,6 +54,4 @@ public:
     void ackIrq(Irq irq);
     IrqSet getEnabledIrqs();
     IrqSet getPendingIrqs();
-
-    bool isBootromEnabled();
 };

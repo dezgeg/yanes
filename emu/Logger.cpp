@@ -6,7 +6,7 @@
 #include <stdarg.h>
 
 void Logger::logInsn(Bus* bus, Regs* regs, int cycles, Word newPC, const char* fmt, ...) {
-    if (!insnLoggingEnabled || bus->isBootromEnabled()) {
+    if (!insnLoggingEnabled) {
         return;
     }
 
