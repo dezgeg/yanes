@@ -26,27 +26,6 @@ static const Byte bootrom[] =
         "\x21\x04\x01\x11\xa8\x00\x1a\x13\xbe\x20\xfe\x23\x7d\xfe\x34\x20" \
         "\xf5\x06\x19\x78\x86\x23\x05\x20\xfb\x86\x20\xfe\x3e\x01\xe0\x50";
 
-void Bus::tickDma(int cycles) {
-    if (!dmaInProgress) {
-        return;
-    }
-
-    assert(cycles % 4 == 0);
-    const int maxCycles = 4 * 4 * 40; // XXX: does it really take 4 cycles for each byte?
-    int nextCycles = std::min(dmaCycles + cycles, maxCycles);
-
-    for (int i = dmaCycles / 4; i < nextCycles / 4; i++) {
-        Byte data = 0;
-        memAccess((dmaSourcePage << 8) | i, &data, false, "DMA");
-        gpu->oamAccess(i, &data, true);
-    }
-
-    dmaCycles = nextCycles;
-    if (nextCycles == maxCycles) {
-        dmaInProgress = false;
-    }
-}
-
 void Bus::dmaRegAccess(Byte* pData, bool isWrite) {
     if (isWrite) {
         dmaInProgress = true;
@@ -74,14 +53,10 @@ void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType acces
         }
     } else if (address <= 0x7fff) {
         rom->cartRomAccess(address, pData, isWrite);
-    } else if (address <= 0x9fff) {
-        gpu->vramAccess(address & 0x1fff, pData, isWrite);
     } else if (address <= 0xbfff) {
         rom->cartRamAccess(address & 0x1fff, pData, isWrite);
     } else if (address <= 0xfdff) {
         BusUtil::arrayMemAccess(ram, address & 0x1fff, pData, isWrite);
-    } else if (address <= 0xfe9f) {
-        gpu->oamAccess(address & 0xff, pData, isWrite);
     } else if (address == 0xff00) {
         joypad->regAccess(pData, isWrite);
     } else if (address >= 0xff01 && address <= 0xff02) {
@@ -92,8 +67,6 @@ void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType acces
         sound->registerAccess(address, pData, isWrite);
     } else if (address == 0xff46) {
         dmaRegAccess(pData, isWrite);
-    } else if (address >= 0xff40 && address <= 0xff4b) {
-        gpu->registerAccess(address, pData, isWrite);
     } else if (address == 0xff50) {
         disableBootrom();
     } else if (address >= 0xff80 && address <= 0xfffe) {

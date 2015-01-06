@@ -79,21 +79,13 @@ MainWindow::MainWindow(const char* romFile, bool insnTrace, QWidget* parent) :
     ui->patternViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(8192, 1), "patternViewer.frag");
     ui->tileMapViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(8192, 1), "tilemapViewer.frag",
             [gpu](LcdWidget* tilemapViewer) {
-                QGLShaderProgram* tilemapShader = tilemapViewer->getShaderProgram();
-                tilemapShader->setUniformValue("bgPatternBaseSelect", (int)gpu->getRegs()->bgPatternBaseSelect);
-                tilemapShader->setUniformValue("bgTileBaseSelect", (int)gpu->getRegs()->bgTileBaseSelect);
+//                QGLShaderProgram* tilemapShader = tilemapViewer->getShaderProgram();
+//                tilemapShader->setUniformValue("bgPatternBaseSelect", (int)gpu->getRegs()->bgPatternBaseSelect);
+//                tilemapShader->setUniformValue("bgTileBaseSelect", (int)gpu->getRegs()->bgTileBaseSelect);
     });
     updateRegisters();
 
     log.insnLoggingEnabled = insnTrace;
-
-    // Skip BootRom
-    gb.getGpu()->setRenderEnabled(false);
-    while (gb.getGpu()->getCurrentFrame() != 332) {
-        gb.runOneInstruction();
-    }
-    gb.getGpu()->setRenderEnabled(true);
-
     connect(frameTimer, SIGNAL(timeout()), this, SLOT(timerTick()));
     nextRenderAt = TimingUtils::getNsecs();
     frameTimer->start(0);

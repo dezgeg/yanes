@@ -63,8 +63,6 @@ public:
         std::memset(hram, 0xAA, sizeof(ram));
     }
 
-    void tickDma(int cycles);
-
     Byte memRead8(Word address, MemAccessType accessType = "CPU");
     void memWrite8(Word address, Byte value, MemAccessType accessType = "CPU");
     Word memRead16(Word address, MemAccessType accessType = "CPU");

@@ -10,7 +10,6 @@ void Nes::runOneInstruction() {
 
     int cycleDelta = cpu.tick();
 
-    bus.tickDma(cycleDelta);
     if (serial.tick(cycleDelta)) {
         bus.raiseIrq(bit(Irq_Serial));
     }
