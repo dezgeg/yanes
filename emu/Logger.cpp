@@ -24,6 +24,8 @@ void Logger::logInsn(Bus* bus, Regs* regs, int cycles, Word newPC, const char* f
     vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
 
+#if 0
+    // TODO IMPLEMENT
     logImpl("[insn %05ld/%03d/%08ld] 0x%04X: %8s => %-32s "
                     "A: 0x%02x | BC: 0x%04x | DE: 0x%04x | HL: 0x%04x | SP: 0x%04x | Flags: %c%c%c%c%c | Cycles: %d",
             currentFrame, currentScanline, currentCycle % ScanlineCycles,
@@ -32,6 +34,7 @@ void Logger::logInsn(Bus* bus, Regs* regs, int cycles, Word newPC, const char* f
             regs->flags.h ? 'H' : '-', regs->flags.c ? 'C' : '-',
             regs->irqsEnabled ? '!' : '.',
             cycles);
+#endif
 }
 
 void Logger::logMemoryAccess(Word addr, Byte data, bool isWrite, MemAccessType accessType) {

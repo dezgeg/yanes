@@ -78,11 +78,11 @@ MainWindow::MainWindow(const char* romFile, bool insnTrace, QWidget* parent) :
     // FIXME(maybe): vram is copied to texture memory twice
     ui->patternViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(8192, 1), "patternViewer.frag");
     ui->tileMapViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(8192, 1), "tilemapViewer.frag",
-            [gpu](LcdWidget* tilemapViewer) {
+            [ gpu ](LcdWidget* tilemapViewer) {
 //                QGLShaderProgram* tilemapShader = tilemapViewer->getShaderProgram();
 //                tilemapShader->setUniformValue("bgPatternBaseSelect", (int)gpu->getRegs()->bgPatternBaseSelect);
 //                tilemapShader->setUniformValue("bgTileBaseSelect", (int)gpu->getRegs()->bgTileBaseSelect);
-    });
+            });
     updateRegisters();
 
     log.insnLoggingEnabled = insnTrace;
@@ -197,6 +197,8 @@ void MainWindow::updateRegisters() {
         pend->setChecked(irqsPending & mask);
     }
 
+#if 0
+    // XXX Implement
     Regs* regs = gb.getCpu()->getRegs();
     ui->cpuRegsAf->setHex(regs->af);
     ui->cpuRegsBc->setHex(regs->bc);
@@ -209,6 +211,7 @@ void MainWindow::updateRegisters() {
     ui->cpuFlagH->setChecked(regs->flags.h);
     ui->cpuFlagC->setChecked(regs->flags.c);
     ui->cpuFlagIrqs->setChecked(regs->irqsEnabled);
+#endif
 }
 
 MainWindow::~MainWindow() {
