@@ -5,7 +5,6 @@
 #include "Joypad.hpp"
 #include "Logger.hpp"
 #include "Rom.hpp"
-#include "Serial.hpp"
 #include "Sound.hpp"
 
 class Nes {
@@ -14,18 +13,16 @@ class Nes {
     Gpu gpu;
     Cpu cpu;
     Joypad joypad;
-    Serial serial;
     Sound sound;
     long currentCycle;
 
 public:
     Nes(Logger* log, Rom* rom) :
             log(log),
-            bus(log, rom, &gpu, &joypad, &serial, &sound),
+            bus(log, rom, &gpu, &joypad, &sound),
             gpu(log),
             cpu(log, &bus),
             joypad(),
-            serial(),
             sound(log),
             currentCycle(0) {
     }

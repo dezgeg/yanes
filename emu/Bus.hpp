@@ -6,7 +6,6 @@
 #include "Rom.hpp"
 #include "Gpu.hpp"
 #include "Joypad.hpp"
-#include "Serial.hpp"
 #include "Sound.hpp"
 
 #include <cstring>
@@ -17,8 +16,6 @@ class Joypad;
 
 class Rom;
 
-class Serial;
-
 class Sound;
 
 class Bus {
@@ -26,7 +23,6 @@ class Bus {
     Rom* rom;
     Gpu* gpu;
     Joypad* joypad;
-    Serial* serial;
     Sound* sound;
 
     bool bootromEnabled;
@@ -40,18 +36,16 @@ class Bus {
     Byte ram[8192];
     Byte hram[127];
 
-    void dummySerialAccess(Word address, Byte* pData, bool isWrite);
     void dmaRegAccess(Byte* pData, bool isWrite);
     void memAccess(Word address, Byte* pData, bool isWrite, MemAccessType accessType);
     void disableBootrom();
 
 public:
-    Bus(Logger* log, Rom* rom, Gpu* gpu, Joypad* joypad, Serial* serial, Sound* sound) :
+    Bus(Logger* log, Rom* rom, Gpu* gpu, Joypad* joypad, Sound* sound) :
             log(log),
             rom(rom),
             gpu(gpu),
             joypad(joypad),
-            serial(serial),
             sound(sound),
             bootromEnabled(true),
             dmaInProgress(false),

@@ -10,10 +10,6 @@ void Nes::runOneInstruction() {
 
     int cycleDelta = cpu.tick();
 
-    if (serial.tick(cycleDelta)) {
-        bus.raiseIrq(bit(Irq_Serial));
-    }
-
     IrqSet gpuIrqs = gpu.tick(cycleDelta);
     bus.raiseIrq(gpuIrqs);
     sound.tick(cycleDelta);
