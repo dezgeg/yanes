@@ -13,22 +13,6 @@ static const pair<unsigned, QString> lcdRegs[] = {
         { 0xff41, QStringLiteral("STAT") },
         { 0xff42, QStringLiteral("SCY") },
         { 0xff43, QStringLiteral("SCX") },
-        { 0xff44, QStringLiteral("LY") },
-        { 0xff45, QStringLiteral("LYC") },
-        { 0xff46, QStringLiteral("DMA") },
-        { 0xff47, QStringLiteral("BGP") },
-        { 0xff48, QStringLiteral("OBP0") },
-        { 0xff49, QStringLiteral("OBP1") },
-        { 0xff4a, QStringLiteral("WY") },
-        { 0xff4b, QStringLiteral("WX") },
-};
-
-static const QString irqNames[] = {
-        QStringLiteral("VBlank"),
-        QStringLiteral("LcdStat"),
-        QStringLiteral("Timer"),
-        QStringLiteral("Serial"),
-        QStringLiteral("Joypad"),
 };
 
 void MainWindow::fillDynamicRegisterTables() {
@@ -41,18 +25,6 @@ void MainWindow::fillDynamicRegisterTables() {
         HexTextField* edit = new HexTextField();
         edit->setFont(font);
         ui->lcdRegsFormLayout->setWidget(i, QFormLayout::FieldRole, edit);
-    }
-
-    ui->irqsFormLayout->addWidget(new QLabel("Enb"), 0, 1);
-    ui->irqsFormLayout->addWidget(new QLabel("Pend"), 0, 2);
-    for (unsigned i = 0; i < arraySize(irqNames); i++) {
-        ui->irqsFormLayout->addWidget(new QLabel(irqNames[i]), i + 1, 0);
-
-        QCheckBox* enabledBtn = new QCheckBox();
-        ui->irqsFormLayout->addWidget(enabledBtn, i + 1, 1);
-
-        QCheckBox* pendingBtn = new QCheckBox();
-        ui->irqsFormLayout->addWidget(pendingBtn, i + 1, 2);
     }
 }
 
@@ -183,18 +155,6 @@ void MainWindow::updateRegisters() {
         HexTextField* edit = static_cast<HexTextField*>(ui->lcdRegsFormLayout->itemAt(i, QFormLayout::FieldRole)->widget());
         unsigned reg = lcdRegs[i].first;
         edit->setHex(bus->memRead8(reg, NULL));
-    }
-
-    Byte irqsEnabled = bus->getEnabledIrqs();
-    Byte irqsPending = bus->getPendingIrqs();
-    for (unsigned i = 0; i < Irq_Max; i++) {
-        unsigned mask = (1 << i);
-        QAbstractButton* enb = (QAbstractButton*)ui->irqsFormLayout->itemAtPosition(i + 1, 1)->widget();
-        QAbstractButton* pend = (QAbstractButton*)ui->irqsFormLayout->itemAtPosition(i + 1, 2)->widget();
-
-        enb->setChecked(irqsEnabled & mask);
-        pend->setEnabled(irqsEnabled & mask);
-        pend->setChecked(irqsPending & mask);
     }
 
 #if 0

@@ -9,8 +9,8 @@
 #include <zconf.h>
 
 enum {
-    ScreenWidth = 160,
-    ScreenHeight = 144,
+    ScreenWidth = 256,
+    ScreenHeight = 240,
 
     ScanlineCycles = 456,
 };
