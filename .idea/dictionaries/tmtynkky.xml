@@ -2,7 +2,9 @@
   <dictionary name="tmtynkky">
     <words>
       <w>gameboy</w>
+      <w>insn</w>
       <w>joypad</w>
+      <w>nsecs</w>
     </words>
   </dictionary>
 </component>

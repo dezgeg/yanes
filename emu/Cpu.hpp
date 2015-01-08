@@ -5,7 +5,38 @@
 #include "Platform.hpp"
 
 union Regs {
-    Word pc;
+    Byte a;
+    Byte x, y;
+    Byte sp;
+    union {
+        Word pc;
+        struct {
+            Byte pcLo;
+            Byte pcHi;
+        };
+    };
+    union Flags {
+        struct {
+            bool n : 1;
+            bool v : 1;
+            bool b : 1;
+            bool d : 1;
+            bool i : 1;
+            bool z : 1;
+            bool c : 1;
+        };
+        Byte bits;
+    } flags;
+
+    void setNZ(Byte b) {
+        flags.z = b != 0;
+        flags.n = !!(b & 0x80);
+    }
+
+    void setNZV(Byte b) {
+        setNZ(b);
+        flags.v = !!(b & bit(6));
+    }
 };
 
 #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
@@ -18,6 +49,40 @@ class Cpu {
     Logger* log;
     Bus* bus;
     Regs regs;
+
+    Byte getPcByte() {
+        return bus->memRead8(regs.pc++);
+    }
+
+    Word getPcWord() {
+        Word ret = bus->memRead16(regs.pc);
+        regs.pc += 2;
+        return ret;
+    }
+
+    void push(Byte b) {
+        bus->memWrite8(0x100 | regs.sp, b);
+        regs.sp--;
+    }
+
+    Byte pull() {
+        regs.sp++;
+        return bus->memRead8(0x100 | regs.sp);
+    }
+
+    int pageCrossCycles(Word addr, int diff) {
+        return (addr & 0xff00) != ((addr + diff) & 0xff00);
+    }
+
+    Byte doAddSub(Byte lhs, Byte rhs, bool isAdd, bool isCmp);
+
+    long doTick(Byte opcode);
+    long handleColumn4C(Byte nybble, bool b);
+    long handleColumnA(Byte i);
+    long handleColumn8(Byte nybble);
+    long handleColumn0(Byte nybble);
+    long handleColumn6E(Byte opcode);
+    long handleColumn159D(Byte opcode);
 
 public:
     Cpu(Logger* log, Bus* bus) :
