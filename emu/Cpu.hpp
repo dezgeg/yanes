@@ -73,8 +73,8 @@ class Cpu {
     }
 
     Word pullWord() {
-        Byte hi = pull();
         Byte lo = pull();
+        Byte hi = pull();
         return (hi << 8) | lo;
     }
 

@@ -40,6 +40,7 @@ static const Word VECTOR_BRK = 0xfffe;
 
 void Cpu::reset() {
     regs = Regs();
+    regs.sp = 0xfd;
     regs.pc = bus->memRead16(VECTOR_RST);
 }
 
@@ -385,13 +386,13 @@ long Cpu::handleColumn6E(Byte opcode) {
     switch ((opcode >> 4) & ~1) {
         case 0x8:
             bus->memWrite8(specialEffAddr, regs.x);
-            return INSN_DONE(3 + hasIndexReg, "STX $0x%*x%s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
+            return INSN_DONE(3 + hasIndexReg, "STX $0x%0*x%s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
 
         case 0xa:
             regs.x = bus->memRead8(specialEffAddr);
             regs.setNZ(regs.x);
             // XXX: instruction 0xBE should have page crossing cost?
-            return INSN_DONE(3 + hasIndexReg, "LDX $0x%*x%s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
+            return INSN_DONE(3 + hasIndexReg, "LDX $0x%0*x%s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
     }
 
     Word effAddr = hasIndexReg ? addr + regs.x : addr;
@@ -441,7 +442,7 @@ long Cpu::handleColumn6E(Byte opcode) {
     }
     bus->memWrite8(effAddr, b);
     // XXX verify cycle count
-    return INSN_DONE(6 + hasIndexReg, "%s $0x%*x%s", str, fieldWidth, addr, hasIndexReg ? ", X" : "");
+    return INSN_DONE(6 + hasIndexReg, "%s $0x%0*x%s", str, fieldWidth, addr, hasIndexReg ? ", X" : "");
 }
 
 long Cpu::handleColumn159D(Byte opcode) {
