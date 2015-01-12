@@ -4,9 +4,9 @@
 
 #ifndef CONFIG_NO_INSN_TRACE
 #define INSN_DBG(x) x
-#define INSN_DBG_DECL() bool _branched = false; Word branchPc = 0; Regs _savedRegs = regs; _savedRegs.pc -= 1
-#define INSN_BRANCH(newPc) (_branched = true, branchPc = regs.pc, regs.pc = (newPc))
-#define INSN_DONE(cycles, ...) (log->logInsn(bus, &_savedRegs, cycles, _branched ? branchPc : regs.pc, __VA_ARGS__), cycles)
+#define INSN_DBG_DECL() bool _branched = false; Word _branchPc = 0; Regs _savedRegs = regs; _savedRegs.pc -= 1
+#define INSN_BRANCH(newPc) (_branched = true, _branchPc = regs.pc, regs.pc = (newPc))
+#define INSN_DONE(cycles, ...) (log->logInsn(bus, &_savedRegs, cycles, _branched ? _branchPc : regs.pc, __VA_ARGS__), cycles)
 #else
 #define INSN_DBG(x)
 #define INSN_DBG_DECL()
@@ -35,10 +35,12 @@ Byte Cpu::doAddSub(Byte lhs, Byte rhs, bool isAdd, bool isCmp) {
     return result;
 }
 
+static const Word VECTOR_RST = 0xfffc;
 static const Word VECTOR_BRK = 0xfffe;
 
 void Cpu::reset() {
     regs = Regs();
+    regs.pc = bus->memRead16(VECTOR_RST);
 }
 
 long Cpu::tick() {
@@ -64,13 +66,13 @@ long Cpu::doTick(Byte opcode) {
         }
         case 0x4c: {
             Word addr = getPcWord();
-            regs.pc = addr;
+            INSN_BRANCH(addr);
             return INSN_DONE(3, "JMP $0x%04x", addr);
         }
         case 0x6c: {
             Word indAddr = getPcWord();
             // TODO: this instruction should be buggy?
-            regs.pc = bus->memRead16(indAddr);
+            INSN_BRANCH(bus->memRead16(indAddr));
             return INSN_DONE(3, "JMP ($0x%04x)", indAddr);
         }
 
@@ -115,7 +117,7 @@ long Cpu::doTick(Byte opcode) {
         Word oldPc = regs.pc; \
         Word dest = regs.pc + displacement; \
         if (cond) \
-            regs.pc = dest; \
+            INSN_BRANCH(dest); \
         return INSN_DONE(cond ? 3 + pageCrossCycles(oldPc, displacement) : 2, opc " $0x%04x", dest); \
     }
 
@@ -133,7 +135,7 @@ long Cpu::handleColumn0(Byte highNybble) {
             push(regs.pcHi);
             push(regs.pcLo);
             regs.flags.i = 1;
-            regs.pc = bus->memRead16(VECTOR_BRK);
+            INSN_BRANCH(bus->memRead16(VECTOR_BRK));
             return INSN_DONE(7, "BRK");
         }
 
@@ -144,7 +146,7 @@ long Cpu::handleColumn0(Byte highNybble) {
             regs.pc--; // XXX(RTS): off by one?
             push(regs.pcHi);
             push(regs.pcLo);
-            regs.pc = addr;
+            INSN_BRANCH(addr);
             return INSN_DONE(6, "JSR $0x%04x", addr);
         }
 
@@ -334,17 +336,29 @@ long Cpu::handleColumn6E(Byte opcode) {
     // addr modes: zp, abs, zpx, abx
     // therefore: bit 3 = zp/abs, bit 4 = no xy/yes xy
     bool isTwoByte = !!(opcode & bit(3));
-    bool hasX = !!(opcode & bit(4));
+    bool hasIndexReg = !!(opcode & bit(4));
 
     Word addr = isTwoByte ? getPcWord() : getPcByte();
     Word mask = isTwoByte ? 0xffff : 0xff;
     int fieldWidth = isTwoByte ? 4 : 2;
 
-    // XXX: instruction 0xBE should have page crossing cost!
-    // XXX: LDXes should use Y as index register!
-    Word effAddr = hasX ? addr + regs.x : addr;
+    // Handle the special cases here: index reg is Y, and not RMW instructions
+    Word specialEffAddr = hasIndexReg ? addr + regs.y : addr;
+    switch ((opcode >> 4) & ~1) {
+        case 0x8:
+            bus->memWrite8(specialEffAddr, regs.x);
+            return INSN_DONE(3 + hasIndexReg, "STX $0x$*x$s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
 
+        case 0xa:
+            regs.x = bus->memRead8(specialEffAddr);
+            regs.setNZ(regs.x);
+            // XXX: instruction 0xBE should have page crossing cost?
+            return INSN_DONE(3 + hasIndexReg, "LDX $0x$*x$s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
+    }
+
+    Word effAddr = hasIndexReg ? addr + regs.x : addr;
     const char* str;
+
     Byte b = bus->memRead8(effAddr & mask);
     switch ((opcode >> 4) & ~1) {
         case 0x0:
@@ -375,19 +389,6 @@ long Cpu::handleColumn6E(Byte opcode) {
             str = "ROR";
             break;
 
-        case 0x8:
-            // XXX don't read, index reg is Y
-            bus->memWrite8(effAddr, regs.x);
-            str = "STX";
-            break;
-
-        case 0xa:
-            // XXX don't write, index reg is Y
-            regs.x = b;
-            regs.setNZ(b);
-            str = "LDX";
-            break;
-
         case 0xc:
             b--;
             regs.setNZ(b);
@@ -401,8 +402,8 @@ long Cpu::handleColumn6E(Byte opcode) {
             break;
     }
     bus->memWrite8(effAddr, b);
-    // XXX cycle count is wrong
-    return INSN_DONE(6 + hasX, "%s $0x$*x$s", str, fieldWidth, addr, hasX ? ", X" : "");
+    // XXX verify cycle count
+    return INSN_DONE(6 + hasIndexReg, "%s $0x$*x$s", str, fieldWidth, addr, hasIndexReg ? ", X" : "");
 }
 
 long Cpu::handleColumn159D(Byte opcode) {
@@ -461,6 +462,9 @@ long Cpu::handleColumn159D(Byte opcode) {
             addrVal = getPcWord();
             b = bus->memRead8(addrVal + regs.x);
             break;
+
+        default:
+            unreachable();
     }
 
     const char* str;
@@ -489,8 +493,9 @@ long Cpu::handleColumn159D(Byte opcode) {
             break;
 
         case 0x8:
-            // XXX no load
+            // XXX is a store
             str = "STA";
+            unreachable();
             break;
 
         case 0xa:

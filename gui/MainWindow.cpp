@@ -187,6 +187,7 @@ void GuiLogger::logImpl(const char* format, ...) {
     va_end(ap);
 
     qtStdout << s << "\n";
+    qtStdout.flush();
 
 #if 0
     ui->logTextarea->moveCursor(QTextCursor::End);

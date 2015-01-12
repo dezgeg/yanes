@@ -4,12 +4,25 @@
 #include "Logger.hpp"
 
 #include <vector>
+#include <stdint.h>
+#include <stddef.h>
 
-enum Mapper {
-    Mapper_None,
-    Mapper_MBC1,
-    Mapper_MBC3,
+struct InesRomHeader {
+    char magic[4];
+    uint8_t numPrgRomBanks;
+    uint8_t numChrRomBanks;
+    uint8_t flags6;
+    uint8_t flags7;
+    uint8_t numPrgRamBanks;
+    uint8_t flags9;
+    uint8_t flags10;
+    char pad[5];
+
+    size_t getPrgRomSize() {
+        return 16 * 1024 * numPrgRomBanks;
+    }
 };
+static_assert(sizeof(InesRomHeader) == 16, "InesRomHeader is borked");
 
 class Rom {
     Logger* log;
@@ -18,14 +31,9 @@ class Rom {
     int saveRamFd;
     Byte* saveRamData;
 
-    Mapper mapper;
+    InesRomHeader header;
 
     struct MapperRegs {
-        bool ramEnabled;
-        bool rtcRegsEnabled;
-        bool bankingMode;
-        Byte romBankLowBits;
-        Byte bankHighBits;      // if bankingMode == 1, selects RAM bank, else selects ROM bank
     } mapperRegs;
 
 public:

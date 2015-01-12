@@ -28,7 +28,7 @@ class Bus {
     IrqSet irqsEnabled;
     IrqSet irqsPending;
 
-    Byte ram[8192];
+    Byte ram[2048];
 
     void memAccess(Word address, Byte* pData, bool isWrite, MemAccessType accessType);
 public:

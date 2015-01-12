@@ -4,7 +4,7 @@
 #include "Logger.hpp"
 #include "Platform.hpp"
 
-union Regs {
+struct Regs {
     Byte a;
     Byte x, y;
     Byte sp;
@@ -51,7 +51,9 @@ class Cpu {
     Regs regs;
 
     Byte getPcByte() {
-        return bus->memRead8(regs.pc++);
+        Byte ret = bus->memRead8(regs.pc);
+        regs.pc++;
+        return ret;
     }
 
     Word getPcWord() {

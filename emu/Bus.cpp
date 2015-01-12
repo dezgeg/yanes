@@ -8,12 +8,10 @@
 #include <algorithm>
 
 void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType accessType) {
-    if (address <= 0xff) {
-        rom->cartRomAccess(address, pData, isWrite);
-    } else if (address <= 0xbfff) {
-        rom->cartRamAccess(address & 0x1fff, pData, isWrite);
-    } else if (address <= 0xfdff) {
-        BusUtil::arrayMemAccess(ram, address & 0x1fff, pData, isWrite);
+    if (address <= 0x1fff) {
+        BusUtil::arrayMemAccess(ram, address & 0x7ff, pData, isWrite);
+    } else if (address >= 0x8000) {
+        rom->cartRomAccess(address - 0x8000, pData, isWrite);
     } else {
         if (isWrite) {
             log->warn("Unhandled write (0x%02x) to address 0x%04X", *pData, address);

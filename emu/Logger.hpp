@@ -2,7 +2,7 @@
 
 typedef const char* MemAccessType; // Just in case we want an enum instead someday...
 
-union Regs;
+struct Regs;
 
 class Bus;
 
