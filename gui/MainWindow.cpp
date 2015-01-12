@@ -28,7 +28,7 @@ void MainWindow::fillDynamicRegisterTables() {
     }
 }
 
-MainWindow::MainWindow(const char* romFile, bool insnTrace, QWidget* parent) :
+MainWindow::MainWindow(const char* romFile, LogFlags logFlags, QWidget* parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow),
         log(ui.get()),
@@ -57,7 +57,7 @@ MainWindow::MainWindow(const char* romFile, bool insnTrace, QWidget* parent) :
             });
     updateRegisters();
 
-    log.insnLoggingEnabled = insnTrace;
+    log.logFlags = logFlags;
     connect(frameTimer, SIGNAL(timeout()), this, SLOT(timerTick()));
     nextRenderAt = TimingUtils::getNsecs();
     frameTimer->start(0);

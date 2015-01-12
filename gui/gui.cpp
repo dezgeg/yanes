@@ -6,12 +6,15 @@
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
 
-    bool trace = false;
+    int logFlags = 0;
     int opt;
     while ((opt = getopt(argc, argv, "t")) != -1) {
         switch (opt) {
             case 't':
-                trace = true;
+                logFlags |= Log_Insns;
+                break;
+            case 'm':
+                logFlags |= Log_MemoryAccesses;
                 break;
             default:
                 fprintf(stderr, "usage: %s [-t] [rom]\n", argv[0]);
@@ -21,7 +24,7 @@ int main(int argc, char** argv) {
     const char* file = optind >= argc ? "test.bin" : argv[optind];
 
     try {
-        MainWindow main(file, trace);
+        MainWindow main(file, LogFlags(logFlags));
         main.show();
 
         return app.exec();

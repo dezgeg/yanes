@@ -6,6 +6,11 @@ struct Regs;
 
 class Bus;
 
+enum LogFlags {
+    Log_Insns = 1,
+    Log_MemoryAccesses = 2,
+};
+
 class Logger {
     long currentFrame;
     long currentCycle;
@@ -15,10 +20,10 @@ protected:
     virtual void logImpl(const char* format, ...) = 0;
 
 public:
-    bool insnLoggingEnabled;
+    LogFlags logFlags;
 
     Logger() :
-            insnLoggingEnabled() {
+            logFlags() {
     }
 
     void setTimestamp(long frame, int scanline, long cycle) {

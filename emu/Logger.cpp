@@ -6,7 +6,7 @@
 #include <stdarg.h>
 
 void Logger::logInsn(Bus* bus, Regs* regs, int cycles, Word newPC, const char* fmt, ...) {
-    if (!insnLoggingEnabled) {
+    if (!(logFlags & Log_Insns)) {
         return;
     }
 
@@ -35,7 +35,7 @@ void Logger::logInsn(Bus* bus, Regs* regs, int cycles, Word newPC, const char* f
 }
 
 void Logger::logMemoryAccess(Word addr, Byte data, bool isWrite, MemAccessType accessType) {
-    if (!insnLoggingEnabled) {
+    if (!(logFlags & Log_MemoryAccesses)) {
         return;
     }
     logImpl("[mem %s (%s)] 0x%04x: %02x", isWrite ? "wr" : "rd", accessType, addr, data);
@@ -53,7 +53,7 @@ void Logger::warn(const char* fmt, ...) {
 }
 
 void Logger::logDebug(const char* fmt, ...) {
-    if (!insnLoggingEnabled) {
+    if (!logFlags) {
         return;
     }
 
