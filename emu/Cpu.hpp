@@ -72,6 +72,12 @@ class Cpu {
         return bus->memRead8(0x100 | regs.sp);
     }
 
+    Word pullWord() {
+        Byte hi = pull();
+        Byte lo = pull();
+        return (hi << 8) | lo;
+    }
+
     int pageCrossCycles(Word addr, int diff) {
         return (addr & 0xff00) != ((addr + diff) & 0xff00);
     }

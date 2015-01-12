@@ -106,7 +106,7 @@ void MainWindow::lcdFocusChanged(bool in) {
     if (in) {
         frameTimer->start();
     } else {
-        frameTimer->stop();
+//        frameTimer->stop();
         updateRegisters();
     }
 }

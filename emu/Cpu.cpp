@@ -153,9 +153,7 @@ long Cpu::handleColumn0(Byte highNybble) {
         case 0x3: DO_BRANCH(regs.flags.n == 1, "BMI");
 
         case 0x4: {
-            regs.pcLo = pull();
-            regs.pcHi = pull();
-            regs.pc++; // XXX(RTS) off by one?
+            INSN_BRANCH(pullWord() + 1); // XXX(RTS) off by one?
 
             regs.flags.bits = pull();
             regs.flags.b = 0;
@@ -165,9 +163,7 @@ long Cpu::handleColumn0(Byte highNybble) {
         case 0x5: DO_BRANCH(regs.flags.v == 0, "BVC");
 
         case 0x6: {
-            regs.pcLo = pull();
-            regs.pcHi = pull();
-            regs.pc++; // XXX(RTS) off by one?
+            INSN_BRANCH(pullWord() + 1); // XXX(RTS) off by one?
             return INSN_DONE(6, "RTS");
         }
 
@@ -179,6 +175,24 @@ long Cpu::handleColumn0(Byte highNybble) {
             regs.setNZ(regs.y);
             return INSN_DONE(2, "LDY #0x%02x", regs.y);
         }
+
+        case 0xb: DO_BRANCH(regs.flags.c == 1, "BCS");
+
+        case 0xc: {
+            Byte imm = getPcByte();
+            doAddSub(regs.y, imm, false, true);
+            return INSN_DONE(2, "CPY #0x%02x", imm);
+        }
+
+        case 0xd: DO_BRANCH(regs.flags.z == 0, "BNE");
+
+        case 0xe: {
+            Byte imm = getPcByte();
+            doAddSub(regs.x, imm, false, true);
+            return INSN_DONE(2, "CPX #0x%02x", imm);
+        }
+
+        case 0xf: DO_BRANCH(regs.flags.z == 1, "BEQ");
     }
 
     return 0;
@@ -303,6 +317,30 @@ long Cpu::handleColumnA(Byte highNybble) {
     INSN_DBG_DECL();
 
     switch (highNybble) {
+        case 0x0:
+            regs.flags.c = !!(regs.a & 0x80);
+            regs.a <<= 1;
+            regs.setNZ(regs.a);
+            return INSN_DONE(2, "ASL");
+
+        case 0x2:
+            regs.flags.c = !!(regs.a & 0x80);
+            regs.a = (regs.a << 1) | (regs.a >> 7);
+            regs.setNZ(regs.a);
+            return INSN_DONE(2, "ROL");
+
+        case 0x4:
+            regs.flags.c = !!(regs.a & 0x80);
+            regs.a >>= 1;
+            regs.setNZ(regs.a);
+            return INSN_DONE(2, "LSR");
+
+        case 0x6:
+            regs.flags.c = !!(regs.a & 0x80);
+            regs.a = (regs.a >> 1) | (regs.a << 7);
+            regs.setNZ(regs.a);
+            return INSN_DONE(2, "ROR");
+
         case 0x8:
             regs.a = regs.x;
             return INSN_DONE(2, "TXA");
@@ -403,7 +441,7 @@ long Cpu::handleColumn6E(Byte opcode) {
     }
     bus->memWrite8(effAddr, b);
     // XXX verify cycle count
-    return INSN_DONE(6 + hasIndexReg, "%s $0x$*x$s", str, fieldWidth, addr, hasIndexReg ? ", X" : "");
+    return INSN_DONE(6 + hasIndexReg, "%s $0x%*x%s", str, fieldWidth, addr, hasIndexReg ? ", X" : "");
 }
 
 long Cpu::handleColumn159D(Byte opcode) {
@@ -415,17 +453,18 @@ long Cpu::handleColumn159D(Byte opcode) {
     const char* fmt;
     Byte b;
     Word addrVal;
+    Word effectiveAddr;
     switch (amode) {
         case 0:
             fmt = "%s ($0x%02x, X)";
             addrVal = getPcByte();
-            b = bus->memRead8(bus->memRead16((addrVal + regs.x) & 0xff));
+            effectiveAddr = bus->memRead16((addrVal + regs.x) & 0xff);
             break;
 
         case 1:
             fmt = "%s $0x%02x";
             addrVal = getPcByte();
-            b = bus->memRead8(addrVal);
+            effectiveAddr = addrVal;
             break;
 
         case 2:
@@ -436,31 +475,31 @@ long Cpu::handleColumn159D(Byte opcode) {
         case 3:
             fmt = "%s 0x%04x";
             addrVal = getPcWord();
-            b = bus->memRead8(addrVal);
+            effectiveAddr = addrVal;
             break;
 
         case 4:
             fmt = "%s (0x%02x), Y";
             addrVal = getPcByte();
-            b = bus->memRead8(bus->memRead16(addrVal) + regs.y);
+            effectiveAddr = bus->memRead16(addrVal) + regs.y;
             break;
 
         case 5:
             fmt = "%s 0x%02x, X";
             addrVal = getPcByte();
-            b = bus->memRead8((addrVal + regs.x) & 0xff);
+            effectiveAddr = (addrVal + regs.x) & 0xff;
             break;
 
         case 6:
             fmt = "%s 0x%04x, Y";
             addrVal = getPcWord();
-            b = bus->memRead8(addrVal + regs.y);
+            effectiveAddr = addrVal + regs.y;
             break;
 
         case 7:
             fmt = "%s 0x%04x, X";
             addrVal = getPcWord();
-            b = bus->memRead8(addrVal + regs.x);
+            effectiveAddr = addrVal + regs.x;
             break;
 
         default:
@@ -470,49 +509,51 @@ long Cpu::handleColumn159D(Byte opcode) {
     const char* str;
     switch ((opcode >> 4) & ~1) {
         case 0x0:
-            regs.a |= b;
+            regs.a |= bus->memRead8(effectiveAddr);
             regs.setNZ(regs.a);
             str = "ORA";
             break;
 
         case 0x2:
-            regs.a &= b;
+            regs.a &= bus->memRead8(effectiveAddr);
             regs.setNZ(regs.a);
             str = "AND";
             break;
 
         case 0x4:
-            regs.a ^= b;
+            regs.a ^= bus->memRead8(effectiveAddr);
             regs.setNZ(regs.a);
             str = "EOR";
             break;
 
         case 0x6:
-            regs.a = doAddSub(regs.a, b, true, false);
+            regs.a = doAddSub(regs.a, bus->memRead8(effectiveAddr), true, false);
             str = "ADC";
             break;
 
         case 0x8:
-            // XXX is a store
+            bus->memWrite8(effectiveAddr, regs.a);
             str = "STA";
-            unreachable();
             break;
 
         case 0xa:
-            regs.a = b;
+            regs.a = bus->memRead8(effectiveAddr);
             regs.setNZ(regs.a);
             str = "LDA";
             break;
 
         case 0xc:
-            doAddSub(regs.a, b, false, true);
+            doAddSub(regs.a, bus->memRead8(effectiveAddr), false, true);
             str = "CMP";
             break;
 
         case 0xe:
-            regs.a = doAddSub(regs.a, b, false, false);
+            regs.a = doAddSub(regs.a, bus->memRead8(effectiveAddr), false, false);
             str = "SBC";
             break;
+
+        default:
+            unreachable();
     }
 
     // XXX cycle count
