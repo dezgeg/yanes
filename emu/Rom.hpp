@@ -21,6 +21,10 @@ struct InesRomHeader {
     size_t getPrgRomSize() {
         return 16 * 1024 * numPrgRomBanks;
     }
+
+    Word getPrgRomAccessMask() {
+        return numPrgRomBanks > 1 ? 0x7fff : 0x3fff;
+    }
 };
 static_assert(sizeof(InesRomHeader) == 16, "InesRomHeader is borked");
 

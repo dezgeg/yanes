@@ -114,6 +114,10 @@ void MainWindow::lcdFocusChanged(bool in) {
 void MainWindow::lcdKeyEvent(QKeyEvent* e) {
     Byte keys;
     switch (e->key()) {
+        case Qt::Key_Escape:
+            exit(0);
+            break;
+
         case Qt::Key_Right:
             keys = Pad_Right;
             break;

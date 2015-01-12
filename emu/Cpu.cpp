@@ -347,13 +347,13 @@ long Cpu::handleColumn6E(Byte opcode) {
     switch ((opcode >> 4) & ~1) {
         case 0x8:
             bus->memWrite8(specialEffAddr, regs.x);
-            return INSN_DONE(3 + hasIndexReg, "STX $0x$*x$s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
+            return INSN_DONE(3 + hasIndexReg, "STX $0x%*x%s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
 
         case 0xa:
             regs.x = bus->memRead8(specialEffAddr);
             regs.setNZ(regs.x);
             // XXX: instruction 0xBE should have page crossing cost?
-            return INSN_DONE(3 + hasIndexReg, "LDX $0x$*x$s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
+            return INSN_DONE(3 + hasIndexReg, "LDX $0x%*x%s", fieldWidth, addr, hasIndexReg ? ", Y" : "");
     }
 
     Word effAddr = hasIndexReg ? addr + regs.x : addr;

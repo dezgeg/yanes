@@ -66,6 +66,7 @@ void Rom::setupMapper() {
 }
 
 void Rom::cartRomAccess(Word address, Byte* pData, bool isWrite) {
+    address &= header.getPrgRomAccessMask();
     if (address >= header.getPrgRomSize()) {
         log->warn("Accessing nonexistent ROM: 0x%04x, max 0x%04x", address, header.getPrgRomSize());
     }
