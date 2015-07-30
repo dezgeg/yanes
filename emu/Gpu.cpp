@@ -31,6 +31,7 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             break;
         case 0x2002:
             BusUtil::simpleRegAccess(&regs.status, pData, isWrite);
+            regs.inVblank = 0;
             break;
 
         case 0x2006:
