@@ -79,7 +79,8 @@ class Gpu {
     int cycleResidue;
 
     Byte framebuffer[ScreenHeight][ScreenWidth];
-    Byte vram[0x4000];
+    Byte vram[2048];
+    Byte paletteRam[0x20]; // keep this after vram!!!
     GpuRegs regs;
 
     void renderScanline();
@@ -93,6 +94,7 @@ public:
             cycleResidue(0) {
         std::memset(&framebuffer[0][0], 0, sizeof(framebuffer));
         std::memset(&vram[0], 0, sizeof(vram));
+        std::memset(&paletteRam[0], 0, sizeof(paletteRam));
         std::memset(&regs, 0, sizeof(regs));
     }
 

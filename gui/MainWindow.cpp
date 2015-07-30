@@ -49,8 +49,8 @@ MainWindow::MainWindow(const char* romFile, LogFlags logFlags, long maxFrames, Q
 
     Gpu* gpu = gb.getGpu();
     // FIXME(maybe): vram is copied to texture memory twice
-    ui->patternViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(8192, 1), "patternViewer.frag");
-    ui->tileMapViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(8192, 1), "tilemapViewer.frag",
+    ui->patternViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(2048 + 0x20, 1), "patternViewer.frag");
+    ui->tileMapViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(2048 + 0x20, 1), "tilemapViewer.frag",
             [ gpu ](LcdWidget* tilemapViewer) {
 //                QGLShaderProgram* tilemapShader = tilemapViewer->getShaderProgram();
 //                tilemapShader->setUniformValue("bgPatternBaseSelect", (int)gpu->getRegs()->bgPatternBaseSelect);
