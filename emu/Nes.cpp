@@ -8,7 +8,7 @@ void Nes::runOneInstruction() {
         bus.raiseIrq(bit(Irq_Joypad));
     }
 
-    int cycleDelta = cpu.tick();
+    int cycleDelta = 12 * cpu.tick();
 
     IrqSet gpuIrqs = gpu.tick(cycleDelta);
     bus.raiseIrq(gpuIrqs);

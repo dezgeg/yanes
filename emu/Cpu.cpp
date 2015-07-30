@@ -558,5 +558,5 @@ long Cpu::handleColumn159D(Byte opcode) {
     }
 
     // XXX cycle count
-    return INSN_DONE(42, fmt, str, addrVal);
+    return INSN_DONE(4, fmt, str, addrVal);
 }

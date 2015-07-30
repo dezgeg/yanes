@@ -10,6 +10,8 @@
 void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType accessType) {
     if (address <= 0x1fff) {
         BusUtil::arrayMemAccess(ram, address & 0x7ff, pData, isWrite);
+    } else if (address <= 0x2007) {
+        gpu->registerAccess(address, pData, isWrite);
     } else if (address >= 0x8000) {
         rom->cartRomAccess(address - 0x8000, pData, isWrite);
     } else {
