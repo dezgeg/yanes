@@ -28,7 +28,7 @@ class MainWindow : public QMainWindow {
 Q_OBJECT
 
 public:
-    explicit MainWindow(const char* romFile, LogFlags logFlags, QWidget* parent = 0);
+    explicit MainWindow(const char* romFile, LogFlags logFlags, long maxFrame, QWidget* parent = 0);
     ~MainWindow();
 
 private:
@@ -36,6 +36,8 @@ private:
     AudioHandler audioHandler;
 
     GuiLogger log;
+    long maxFrames;
+
     Rom rom;
     Nes gb;
 

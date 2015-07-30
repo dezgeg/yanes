@@ -28,10 +28,11 @@ void MainWindow::fillDynamicRegisterTables() {
     }
 }
 
-MainWindow::MainWindow(const char* romFile, LogFlags logFlags, QWidget* parent) :
+MainWindow::MainWindow(const char* romFile, LogFlags logFlags, long maxFrames, QWidget* parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow),
         log(ui.get()),
+        maxFrames(maxFrames),
         rom(&log, romFile),
         gb(&log, &rom),
         frameTimer(new QTimer(this)) {
@@ -93,6 +94,10 @@ void MainWindow::timerTick() {
 
     if (gb.getGpu()->getCurrentFrame() % 60 == 0) {
         updateRegisters();
+    }
+
+    if (maxFrames >= 0 && gb.getGpu()->getCurrentFrame() >= maxFrames) {
+        exit(0);
     }
 
     long endTime = TimingUtils::getNsecs();
