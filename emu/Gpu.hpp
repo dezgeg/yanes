@@ -72,6 +72,7 @@ struct GpuRegs {
 
 class Gpu {
     Logger* log;
+    Bus* bus;
 
     bool renderEnabled;
     long frame;
@@ -86,8 +87,9 @@ class Gpu {
     void renderScanline();
 
 public:
-    Gpu(Logger* log) :
+    Gpu(Logger* log, Bus* bus) :
             log(log),
+            bus(bus),
             renderEnabled(true),
             frame(0),
             scanline(0),

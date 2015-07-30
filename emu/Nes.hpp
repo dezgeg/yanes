@@ -20,7 +20,7 @@ public:
     Nes(Logger* log, Rom* rom) :
             log(log),
             bus(log, rom, &gpu, &joypad, &sound),
-            gpu(log),
+            gpu(log, &bus),
             cpu(log, &bus),
             joypad(),
             sound(log),

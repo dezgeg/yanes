@@ -43,6 +43,8 @@ public:
         std::memset(ram, 0xAA, sizeof(ram));
     }
 
+    Rom* getRom() { return rom; }
+
     Byte memRead8(Word address, MemAccessType accessType = "CPU");
     void memWrite8(Word address, Byte value, MemAccessType accessType = "CPU");
     Word memRead16(Word address, MemAccessType accessType = "CPU");
