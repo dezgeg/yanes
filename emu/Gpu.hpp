@@ -60,6 +60,14 @@ struct GpuRegs {
             Byte inVblank : 1;
         };
     };
+    Byte scrollOffsetHi, scrollOffsetLo;
+    union {
+        Word vramAddr;
+        struct {
+            Byte vramAddrLo, vramAddrHi;
+        };
+    };
+    bool vramAddrRegSelect;
 };
 
 class Gpu {
@@ -69,9 +77,11 @@ class Gpu {
     long frame;
     long scanline;
     int cycleResidue;
-    Byte framebuffer[ScreenHeight][ScreenWidth];
 
+    Byte framebuffer[ScreenHeight][ScreenWidth];
+    Byte vram[0x4000];
     GpuRegs regs;
+
     void renderScanline();
 
 public:
@@ -82,15 +92,14 @@ public:
             scanline(0),
             cycleResidue(0) {
         std::memset(&framebuffer[0][0], 0, sizeof(framebuffer));
+        std::memset(&vram[0], 0, sizeof(vram));
         std::memset(&regs, 0, sizeof(regs));
     }
 
     long getCurrentScanline() { return scanline; }
-    long getCurrentFrame() {
-        return frame;
-    }
+    long getCurrentFrame() { return frame; }
     Byte* getFramebuffer() { return &framebuffer[0][0]; }
-    Byte* getVram() { return nullptr; }
+    Byte* getVram() { return &vram[0]; }
     GpuRegs* getRegs() { return &regs; }
     void setRenderEnabled(bool renderEnabled) { this->renderEnabled = renderEnabled; }
 
