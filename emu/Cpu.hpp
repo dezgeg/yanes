@@ -29,7 +29,7 @@ struct Regs {
     } flags;
 
     void setNZ(Byte b) {
-        flags.z = b != 0;
+        flags.z = b == 0;
         flags.n = !!(b & 0x80);
     }
 
