@@ -7,7 +7,7 @@
         GLint err = glGetError(); \
         if (err != GL_NO_ERROR) { \
             qDebug() << __FILE__ << ":" << __LINE__ << " - glGetError() == " << err; \
-            exit(1); \
+            assert(0); \
         } \
     }()
 
@@ -65,9 +65,11 @@ void LcdWidget::initializeGL() {
     glActiveTexture(GL_TEXTURE2);
     makeGridTexture(yAxisGridTexture, size().height());
 
-    glActiveTexture(GL_TEXTURE3);
-    secondaryTexture.setSize(secondaryTextureSize.width(), secondaryTextureSize.height());
-    setupTexture(secondaryTexture);
+    if (!secondaryTextureSize.isEmpty()) {
+        glActiveTexture(GL_TEXTURE3);
+        secondaryTexture.setSize(secondaryTextureSize.width(), secondaryTextureSize.height());
+        setupTexture(secondaryTexture);
+    }
 
     vertexShader = new QGLShader(QGLShader::Vertex, this);
     const char* vsrc =
@@ -103,6 +105,7 @@ void LcdWidget::initializeGL() {
     shaderProgram->setUniformValue("texture", 0);
     shaderProgram->setUniformValue("xAxisGrid", 1);
     shaderProgram->setUniformValue("yAxisGrid", 2);
+    shaderProgram->setUniformValue("secondaryTexture", 3);
 
     shaderProgram->enableAttributeArray(0);
     CHECK_GL();

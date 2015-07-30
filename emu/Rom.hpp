@@ -53,6 +53,14 @@ public:
     Rom(Logger* log, const char* fileName);
     ~Rom();
 
+    InesRomHeader* getHeader() {
+        return &header;
+    }
+
+    Byte* getChrRom() {
+        return chrRomData.data();
+    }
+
     void cartRomAccess(Word address, Byte* pData, bool isWrite);
     void cartRamAccess(Word address, Byte* pData, bool isWrite);
     void readRomFile(char const* fileName);

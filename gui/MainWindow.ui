@@ -73,14 +73,14 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>575</width>
-              <height>539</height>
+              <width>271</width>
+              <height>543</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>575</width>
-              <height>539</height>
+              <width>271</width>
+              <height>543</height>
              </size>
             </property>
            </widget>

@@ -62,7 +62,7 @@ public:
         setFocusPolicy(Qt::StrongFocus);
     }
 
-    void init(Byte* textureData, QSize size, Byte* secondaryTextureData, QSize secondarySize,
+    void init(Byte* textureData, QSize size, Byte* secondaryTextureData, QSize secondaryTextureSize,
               char const* shaderFile,
               std::function<void(LcdWidget*)> drawCallback = nullptr) {
         this->textureData = textureData;
