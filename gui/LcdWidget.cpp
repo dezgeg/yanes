@@ -65,6 +65,10 @@ void LcdWidget::initializeGL() {
     glActiveTexture(GL_TEXTURE2);
     makeGridTexture(yAxisGridTexture, size().height());
 
+    glActiveTexture(GL_TEXTURE3);
+    secondaryTexture.setSize(secondaryTextureSize.width(), secondaryTextureSize.height());
+    setupTexture(secondaryTexture);
+
     vertexShader = new QGLShader(QGLShader::Vertex, this);
     const char* vsrc =
             "attribute highp vec2 vertex;\n" \
@@ -78,7 +82,7 @@ void LcdWidget::initializeGL() {
 
     fragmentShader = new QGLShader(QGLShader::Fragment, this);
     QString fileName = QCoreApplication::instance()->applicationDirPath() +
-            QString("/shaders/") + fragmentShaderFile;
+                       QString("/shaders/") + fragmentShaderFile;
     fragmentShader->compileSourceFile(fileName);
 
     shaderProgram = new QGLShaderProgram(this);
@@ -119,6 +123,11 @@ void LcdWidget::paintGL() {
     }
     texture.setData(QOpenGLTexture::Red, QOpenGLTexture::UInt8, (void*)textureData);
     CHECK_GL();
+
+    if (secondaryTextureData) {
+        secondaryTexture.setData(QOpenGLTexture::Red, QOpenGLTexture::UInt8, (void*)secondaryTextureData);
+        CHECK_GL();
+    }
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     CHECK_GL();

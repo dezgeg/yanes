@@ -11,12 +11,17 @@ Q_OBJECT
     QGLShader* vertexShader;
     QGLShader* fragmentShader;
     QGLShaderProgram* shaderProgram;
-    QOpenGLTexture texture;
     QOpenGLTexture xAxisGridTexture;
     QOpenGLTexture yAxisGridTexture;
 
+    QOpenGLTexture texture;
     Byte* textureData;
     QSize textureSize;
+
+    QOpenGLTexture secondaryTexture;
+    Byte* secondaryTextureData;
+    QSize secondaryTextureSize;
+
     char const* fragmentShaderFile;
     std::function<void(LcdWidget*)> drawCallback;
 
@@ -50,16 +55,20 @@ public:
 
     explicit LcdWidget(QWidget* parent) :
             QGLWidget(createGLFormat(), parent),
-            texture(QOpenGLTexture::Target2D),
             xAxisGridTexture(QOpenGLTexture::Target2D),
-            yAxisGridTexture(QOpenGLTexture::Target2D) {
+            yAxisGridTexture(QOpenGLTexture::Target2D),
+            texture(QOpenGLTexture::Target2D),
+            secondaryTexture(QOpenGLTexture::Target2D) {
         setFocusPolicy(Qt::StrongFocus);
     }
 
-    void init(Byte* textureData, QSize size, char const* shaderFile,
-            std::function<void(LcdWidget*)> drawCallback = nullptr) {
+    void init(Byte* textureData, QSize size, Byte* secondaryTextureData, QSize secondarySize,
+              char const* shaderFile,
+              std::function<void(LcdWidget*)> drawCallback = nullptr) {
         this->textureData = textureData;
         this->textureSize = size;
+        this->secondaryTextureData = secondaryTextureData;
+        this->secondaryTextureSize = secondaryTextureSize;
         this->fragmentShaderFile = shaderFile;
         this->drawCallback = drawCallback;
     }

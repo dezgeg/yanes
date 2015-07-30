@@ -44,18 +44,21 @@ MainWindow::MainWindow(const char* romFile, LogFlags logFlags, long maxFrames, Q
     connect(ui->lcdWidget, SIGNAL(focusChanged(bool)), this, SLOT(lcdFocusChanged(bool)));
     connect(ui->lcdWidget, SIGNAL(keyEvent(QKeyEvent * )), this, SLOT(lcdKeyEvent(QKeyEvent * )));
 
-    ui->lcdWidget->init(gb.getGpu()->getFramebuffer(), QSize(ScreenWidth, ScreenHeight), "main.frag");
+    ui->lcdWidget->init(gb.getGpu()->getFramebuffer(), QSize(ScreenWidth, ScreenHeight),
+                        nullptr, QSize(), "main.frag");
     ui->lcdWidget->setFocus();
 
     Gpu* gpu = gb.getGpu();
     // FIXME(maybe): vram is copied to texture memory twice
-    ui->patternViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(2048 + 0x20, 1), "patternViewer.frag");
-    ui->tileMapViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(2048 + 0x20, 1), "tilemapViewer.frag",
-            [ gpu ](LcdWidget* tilemapViewer) {
+    ui->patternViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(2048 + 0x20, 1),
+                                     nullptr, QSize(), "patternViewer.frag");
+    ui->tileMapViewerLcdWidget->init(gb.getGpu()->getVram(), QSize(2048 + 0x20, 1),
+                                     nullptr, QSize(), "tilemapViewer.frag",
+                                     [ gpu ](LcdWidget* tilemapViewer) {
 //                QGLShaderProgram* tilemapShader = tilemapViewer->getShaderProgram();
 //                tilemapShader->setUniformValue("bgPatternBaseSelect", (int)gpu->getRegs()->bgPatternBaseSelect);
 //                tilemapShader->setUniformValue("bgTileBaseSelect", (int)gpu->getRegs()->bgTileBaseSelect);
-            });
+                                     });
     updateRegisters();
 
     log.logFlags = logFlags;
@@ -161,7 +164,8 @@ void MainWindow::lcdKeyEvent(QKeyEvent* e) {
 void MainWindow::updateRegisters() {
     Bus* bus = gb.getBus();
     for (unsigned i = 0; i < arraySize(lcdRegs); i++) {
-        HexTextField* edit = static_cast<HexTextField*>(ui->lcdRegsFormLayout->itemAt(i, QFormLayout::FieldRole)->widget());
+        HexTextField* edit = static_cast<HexTextField*>(ui->lcdRegsFormLayout->itemAt(i,
+                                                                                      QFormLayout::FieldRole)->widget());
         unsigned reg = lcdRegs[i].first;
         edit->setHex(bus->memRead8(reg, NULL));
     }
