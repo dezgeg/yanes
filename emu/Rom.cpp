@@ -38,9 +38,12 @@ void Rom::readRomFile(char const* fileName) {
     log->warn("INES header - mapper %d, PRG banks: %d, CHR ROM banks: %d",
               header.getMapper(), header.numPrgRomBanks, header.numChrRomBanks);
 
-    sz -= sizeof(InesRomHeader);
-    romData.resize(sz);
-    stream.read((char*)&romData[0], sz);
+    prgRomData.resize(header.getPrgRomSize());
+    stream.read((char*)&prgRomData[0], header.getPrgRomSize());
+    chrRomData.resize(header.getChrRomSize());
+    stream.read((char*)&chrRomData[0], header.getChrRomSize());
+
+    assert(sz == (size_t)stream.tellg());
 }
 
 void Rom::setupSaveRam(char const* name) {
@@ -77,7 +80,7 @@ void Rom::cartRomAccess(Word address, Byte* pData, bool isWrite) {
     if (isWrite) {
         log->warn("ROM write to address 0x%04x", address);
     } else {
-        BusUtil::arrayMemAccess(romData.data(), address, pData, isWrite);
+        BusUtil::arrayMemAccess(prgRomData.data(), address, pData, isWrite);
     }
 }
 

@@ -29,12 +29,17 @@ struct InesRomHeader {
     Word getPrgRomAccessMask() {
         return numPrgRomBanks > 1 ? 0x7fff : 0x3fff;
     }
+
+    size_t getChrRomSize() {
+        return 8 * 1024 * numChrRomBanks;
+    }
 };
 static_assert(sizeof(InesRomHeader) == 16, "InesRomHeader is borked");
 
 class Rom {
     Logger* log;
-    std::vector<Byte> romData;
+    std::vector<Byte> prgRomData;
+    std::vector<Byte> chrRomData;
 
     int saveRamFd;
     Byte* saveRamData;
