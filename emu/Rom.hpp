@@ -18,6 +18,10 @@ struct InesRomHeader {
     uint8_t flags10;
     char pad[5];
 
+    size_t getMapper() {
+        return (flags6 & 0xf) | (flags7 & 0xf0);
+    }
+
     size_t getPrgRomSize() {
         return 16 * 1024 * numPrgRomBanks;
     }

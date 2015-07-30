@@ -35,8 +35,8 @@ void Rom::readRomFile(char const* fileName) {
     }
     stream.read((char*)&header, sizeof(InesRomHeader));
 
-    log->warn("INES header - PRG banks: %d, CHR ROM banks: %d",
-              header.numPrgRomBanks, header.numChrRomBanks);
+    log->warn("INES header - mapper %d, PRG banks: %d, CHR ROM banks: %d",
+              header.getMapper(), header.numPrgRomBanks, header.numChrRomBanks);
 
     sz -= sizeof(InesRomHeader);
     romData.resize(sz);
