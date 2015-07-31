@@ -20,10 +20,10 @@ Byte Cpu::doAddSub(Byte lhs, Byte rhs, bool isAdd, bool isCmp) {
     Byte result;
     if (isAdd) {
         result = lhs + rhs + carry;
-        regs.flags.c = (Word(lhs) + Word(rhs) + carry) > WORD_MAX;
+        regs.flags.c = (Word(lhs) + Word(rhs) + carry) > 0xff;
     } else {
         result = lhs - rhs - Byte(1 - carry);
-        regs.flags.c = !((Word(lhs) + Word(rhs) + carry) > WORD_MAX);
+        regs.flags.c = !((Word(lhs) + Word(rhs) + carry) > 0xff);
     }
 
     bool lhsSign = !!(lhs & 0x80);
