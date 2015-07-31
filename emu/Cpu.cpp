@@ -343,11 +343,13 @@ long Cpu::handleColumnA(Byte highNybble) {
             regs.setNZ(regs.a);
             return INSN_DONE(2, "ASL");
 
-        case 0x2:
+        case 0x2: {
+            bool origCarry = regs.flags.c;
             regs.flags.c = !!(regs.a & 0x80);
-            regs.a = (regs.a << 1) | (regs.a >> 7);
+            regs.a = (regs.a << 1) | (origCarry ? 0x01 : 0x0);
             regs.setNZ(regs.a);
             return INSN_DONE(2, "ROL");
+        }
 
         case 0x4:
             regs.flags.c = !!(regs.a & 0x01);
@@ -428,12 +430,14 @@ long Cpu::handleColumn6E(Byte opcode) {
             str = "ASL";
             break;
 
-        case 0x2:
+        case 0x2: {
+            bool origCarry = regs.flags.c;
             regs.flags.c = !!(b & 0x80);
-            b = (b << 1) | (b >> 7);
+            b = (b << 1) | (origCarry ? 0x01 : 0x0);
             regs.setNZ(b);
             str = "ROL";
             break;
+        }
 
         case 0x4:
             regs.flags.c = !!(b & 0x01);
