@@ -350,16 +350,18 @@ long Cpu::handleColumnA(Byte highNybble) {
             return INSN_DONE(2, "ROL");
 
         case 0x4:
-            regs.flags.c = !!(regs.a & 0x80);
+            regs.flags.c = !!(regs.a & 0x01);
             regs.a >>= 1;
             regs.setNZ(regs.a);
             return INSN_DONE(2, "LSR");
 
-        case 0x6:
-            regs.flags.c = !!(regs.a & 0x80);
-            regs.a = (regs.a >> 1) | (regs.a << 7);
+        case 0x6: {
+            bool origCarry = regs.flags.c;
+            regs.flags.c = !!(regs.a & 0x01);
+            regs.a = (regs.a >> 1) | (origCarry ? 0x80 : 0x0);
             regs.setNZ(regs.a);
             return INSN_DONE(2, "ROR");
+        }
 
         case 0x8:
             regs.a = regs.x;
@@ -434,18 +436,20 @@ long Cpu::handleColumn6E(Byte opcode) {
             break;
 
         case 0x4:
-            regs.flags.c = !!(b & 0x80);
+            regs.flags.c = !!(b & 0x01);
             b >>= 1;
             regs.setNZ(b);
             str = "LSR";
             break;
 
-        case 0x6:
-            regs.flags.c = !!(b & 0x80);
-            b = (b >> 1) | (b << 7);
+        case 0x6: {
+            bool origCarry = regs.flags.c;
+            regs.flags.c = !!(b & 0x01);
+            b = (regs.a >> 1) | (origCarry ? 0x80 : 0x0);
             regs.setNZ(b);
             str = "ROR";
             break;
+        }
 
         case 0xc:
             b--;
