@@ -468,9 +468,12 @@ long Cpu::handleColumn159D(Byte opcode) {
     // insn bytes: 01, 05, 09, 0D, 11, 15, 19, 1D
     // addr modes: izx, zp, imm, abs, izy, zpx, aby, abx
     int amode = (opcode >> 2) & 0x7;
+    int action = (opcode >> 4) & ~1;
+
+    bool isImm = amode == 2;
+    bool isWrite = action == 8;
 
     const char* fmt;
-    bool isImm = false;
     Byte b;
     Word addrVal;
     Word effectiveAddr;
@@ -491,7 +494,6 @@ long Cpu::handleColumn159D(Byte opcode) {
             fmt = "%s #0x%02x";
             addrVal = b = getPcByte();
             effectiveAddr = 0; // Quiet compiler warning
-            isImm = true;
             break;
 
         case 3:
@@ -528,11 +530,11 @@ long Cpu::handleColumn159D(Byte opcode) {
             unreachable();
     }
 
-    if (!isImm)
+    if (!isImm && !isWrite)
         b = bus->memRead8(effectiveAddr);
 
     const char* str;
-    switch ((opcode >> 4) & ~1) {
+    switch (action) {
         case 0x0:
             regs.a |= b;
             regs.setNZ(regs.a);
