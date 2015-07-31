@@ -12,6 +12,8 @@ void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType acces
         BusUtil::arrayMemAccess(ram, address & 0x7ff, pData, isWrite);
     } else if (address <= 0x2007) {
         gpu->registerAccess(address, pData, isWrite);
+    } else if (address >= 0x4016 && address <= 0x4017) {
+        joypad->regAccess(address, pData, isWrite);
     } else if (address >= 0x8000) {
         rom->cartRomAccess(address - 0x8000, pData, isWrite);
     } else {

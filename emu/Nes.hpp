@@ -22,7 +22,7 @@ public:
             bus(log, rom, &gpu, &joypad, &sound),
             gpu(log, &bus),
             cpu(log, &bus),
-            joypad(),
+            joypad(log),
             sound(log),
             currentCycle(0) {
     }
