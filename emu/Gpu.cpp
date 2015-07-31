@@ -106,7 +106,7 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             }
             log->warn("VRAM %s [%02x] to addr %04X", isWrite ? "write" : "read", *pData, regs.vramAddr);
 
-            regs.vramAddr += regs.vramPortAddressIncr ? 16 : 1;
+            regs.vramAddr += regs.vramPortAddressIncr ? 32 : 1;
             regs.vramAddrHi &= (1 << 6) - 1;
             break;
         }
