@@ -452,6 +452,7 @@ long Cpu::handleColumn159D(Byte opcode) {
     int amode = (opcode >> 2) & 0x7;
 
     const char* fmt;
+    bool isImm = false;
     Byte b;
     Word addrVal;
     Word effectiveAddr;
@@ -471,6 +472,8 @@ long Cpu::handleColumn159D(Byte opcode) {
         case 2:
             fmt = "%s #0x%02x";
             addrVal = b = getPcByte();
+            effectiveAddr = 0; // Quiet compiler warning
+            isImm = true;
             break;
 
         case 3:
@@ -507,28 +510,31 @@ long Cpu::handleColumn159D(Byte opcode) {
             unreachable();
     }
 
+    if (!isImm)
+        b = bus->memRead8(effectiveAddr);
+
     const char* str;
     switch ((opcode >> 4) & ~1) {
         case 0x0:
-            regs.a |= bus->memRead8(effectiveAddr);
+            regs.a |= b;
             regs.setNZ(regs.a);
             str = "ORA";
             break;
 
         case 0x2:
-            regs.a &= bus->memRead8(effectiveAddr);
+            regs.a &= b;
             regs.setNZ(regs.a);
             str = "AND";
             break;
 
         case 0x4:
-            regs.a ^= bus->memRead8(effectiveAddr);
+            regs.a ^= b;
             regs.setNZ(regs.a);
             str = "EOR";
             break;
 
         case 0x6:
-            regs.a = doAddSub(regs.a, bus->memRead8(effectiveAddr), true, false);
+            regs.a = doAddSub(regs.a, b, true, false);
             str = "ADC";
             break;
 
@@ -538,18 +544,18 @@ long Cpu::handleColumn159D(Byte opcode) {
             break;
 
         case 0xa:
-            regs.a = bus->memRead8(effectiveAddr);
+            regs.a = b;
             regs.setNZ(regs.a);
             str = "LDA";
             break;
 
         case 0xc:
-            doAddSub(regs.a, bus->memRead8(effectiveAddr), false, true);
+            doAddSub(regs.a, b, false, true);
             str = "CMP";
             break;
 
         case 0xe:
-            regs.a = doAddSub(regs.a, bus->memRead8(effectiveAddr), false, false);
+            regs.a = doAddSub(regs.a, b, false, false);
             str = "SBC";
             break;
 
