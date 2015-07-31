@@ -88,6 +88,8 @@ class Gpu {
     static Byte drawTilePixel(Byte* tile, unsigned int x, unsigned int y, bool large);
 
 public:
+    static const Byte colorTable[64 * 3];
+
     Gpu(Logger* log, Bus* bus) :
             log(log),
             bus(bus),

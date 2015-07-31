@@ -45,7 +45,7 @@ MainWindow::MainWindow(const char* romFile, LogFlags logFlags, long maxFrames, Q
     connect(ui->lcdWidget, SIGNAL(keyEvent(QKeyEvent * )), this, SLOT(lcdKeyEvent(QKeyEvent * )));
 
     ui->lcdWidget->init(gb.getGpu()->getFramebuffer(), QSize(ScreenWidth, ScreenHeight),
-                        nullptr, QSize(), "main.frag");
+                        (Byte*)Gpu::colorTable, QSize(sizeof(Gpu::colorTable), 1), "main.frag");
     ui->lcdWidget->setFocus();
 
     Gpu* gpu = gb.getGpu();
