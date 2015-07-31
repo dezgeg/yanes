@@ -48,22 +48,15 @@ void Bus::memWrite16(Word address, Word value, MemAccessType accessType) {
     memWrite8(address + 1, (Byte)(value >> 8), accessType);
 }
 
-void Bus::raiseIrq(IrqSet irqs) {
-    irqsPending |= irqs; // TODO: should this be masked with irqsEnabled???
-}
-
-void Bus::ackIrq(Irq irq) {
-    if (!(irqsPending & (1 << irq))) {
-        log->warn("IRQ %d not pending?", irq);
-    }
-    irqsPending &= ~(1 << irq);
-}
-
-IrqSet Bus::getEnabledIrqs() {
-    return irqsEnabled;
+void Bus::setNmiState(bool state) {
+    if (lastNmiState != state && state)
+        irqsPending |= Irq_NMI;
+    else
+        irqsPending &= ~Irq_NMI;
+    //log->warn("ASDASD state: %d last: %d, pend: %d", (int)state, (int)lastNmiState, (int)irqsPending);
+    lastNmiState = state;
 }
 
 IrqSet Bus::getPendingIrqs() {
-    return irqsPending & irqsEnabled;
+    return irqsPending;
 }
-

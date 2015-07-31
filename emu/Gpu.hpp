@@ -37,7 +37,7 @@ struct GpuRegs {
             Byte bgPatternTableAddr : 1;
             Byte largeSprites : 1;
             Byte masterSlaveSelect : 1;
-            Byte vblankIrq : 1;
+            Byte vblankIrqEnabled : 1;
         };
     };
     union {
@@ -46,8 +46,8 @@ struct GpuRegs {
             Byte monochrome : 1;
             Byte bgClipping : 1;
             Byte spriteClipping : 1;
-            Byte bgVisibility : 1;
-            Byte spriteVisiblity : 1;
+            Byte bgEnabled : 1;
+            Byte spritesEnabled : 1;
             Byte colorEmphasis : 3;
         };
     };
@@ -85,6 +85,7 @@ class Gpu {
     GpuRegs regs;
 
     void renderScanline();
+    static Byte drawTilePixel(Byte* tile, unsigned int x, unsigned int y, bool large);
 
 public:
     Gpu(Logger* log, Bus* bus) :
@@ -108,5 +109,5 @@ public:
     void setRenderEnabled(bool renderEnabled) { this->renderEnabled = renderEnabled; }
 
     void registerAccess(Word reg, Byte* pData, bool isWrite);
-    IrqSet tick(long cycles);
+    bool tick(long cycles);
 };

@@ -35,8 +35,10 @@ Byte Cpu::doAddSub(Byte lhs, Byte rhs, bool isAdd, bool isCmp) {
     return result;
 }
 
+static const Word VECTOR_NMI = 0xfffa;
 static const Word VECTOR_RST = 0xfffc;
 static const Word VECTOR_BRK = 0xfffe;
+static const Word VECTOR_IRQ = 0xfffe;
 
 void Cpu::reset() {
     regs = Regs();
@@ -45,6 +47,22 @@ void Cpu::reset() {
 }
 
 long Cpu::tick() {
+    IrqSet pendingIrqs = bus->getPendingIrqs();
+    bool nmiPending = pendingIrqs & Irq_NMI;
+    if (nmiPending || (!regs.flags.i && pendingIrqs & Irq_IRQ)) {
+        log->warn("IRQ hit!");
+        // XXX: don't copypaste
+        push(regs.flags.bits);
+
+        // XXX(RTS): off by one?
+        regs.pc--;
+        push(regs.pcHi);
+        push(regs.pcLo);
+        regs.flags.i = 1;
+        regs.pc = bus->memRead16(nmiPending ? VECTOR_NMI : VECTOR_IRQ);
+        return 4; // XXX IRQ latency?
+    }
+
     Byte opcode = getPcByte();
     long cycles = doTick(opcode);
     if (!cycles) {

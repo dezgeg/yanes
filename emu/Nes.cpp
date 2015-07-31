@@ -4,14 +4,12 @@ void Nes::runOneInstruction() {
     long newFrame = gpu.getCurrentFrame();
     log->setTimestamp(newFrame, gpu.getCurrentScanline(), currentCycle);
 
-    if (joypad.tick()) {
-        bus.raiseIrq(bit(Irq_Joypad));
-    }
+    joypad.tick();
 
     int cycleDelta = 12 * cpu.tick();
 
-    IrqSet gpuIrqs = gpu.tick(cycleDelta);
-    bus.raiseIrq(gpuIrqs);
+    bool gpuIrq = gpu.tick(cycleDelta);
+    bus.setNmiState(gpuIrq);
     sound.tick(cycleDelta);
     currentCycle += cycleDelta;
 }

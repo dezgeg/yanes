@@ -25,8 +25,8 @@ class Bus {
     Joypad* joypad;
     Sound* sound;
 
-    IrqSet irqsEnabled;
     IrqSet irqsPending;
+    bool lastNmiState;
 
     Byte ram[2048];
 
@@ -38,8 +38,8 @@ public:
             gpu(gpu),
             joypad(joypad),
             sound(sound),
-            irqsEnabled(0),
-            irqsPending(0) {
+            irqsPending(0),
+            lastNmiState(false) {
         std::memset(ram, 0xAA, sizeof(ram));
     }
 
@@ -50,8 +50,6 @@ public:
     Word memRead16(Word address, MemAccessType accessType = "CPU");
     void memWrite16(Word address, Word value, MemAccessType accessType = "CPU");
 
-    void raiseIrq(IrqSet irqs);
-    void ackIrq(Irq irq);
-    IrqSet getEnabledIrqs();
+    void setNmiState(bool state);
     IrqSet getPendingIrqs();
 };
