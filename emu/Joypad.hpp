@@ -47,8 +47,8 @@ public:
         if (!isWrite) {
             if (port == 0) {
                 *pData = (latchedKeys & 0x1) | 0x40;
-                latchedKeys = (latchedKeys << 1) | 0x80;
-                log->warn("Returned keys to NES: %02x", (unsigned)*pData);
+                latchedKeys = (latchedKeys >> 1) | 0x80;
+                // log->warn("Returned keys to NES: %02x", (unsigned)*pData);
             } else {
                 *pData = 0x2; // not connected
             }
