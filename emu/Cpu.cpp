@@ -165,6 +165,7 @@ long Cpu::handleColumn0(Byte highNybble) {
             regs.pc--; // XXX(RTS): off by one?
             push(regs.pcHi);
             push(regs.pcLo);
+            regs.pc++;
             INSN_BRANCH(addr);
             return INSN_DONE(6, "JSR $0x%04x", addr);
         }
