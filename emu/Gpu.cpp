@@ -61,8 +61,24 @@ void Gpu::renderScanline() {
 
             Byte tileNum = bgTileBase[bgTileY * 32 + bgTileX];
             bgColor = drawTilePixel(bgPatternBase + 16 * tileNum, bgTileXBit, bgTileYBit, false);
+
+            unsigned attrTableY = bgTileY / 4;
+            unsigned attrTableX = bgTileX / 4;
+            Byte attrTableVal = bgTileBase[0x3c0 + 8 * attrTableY + attrTableX];
+
+            unsigned attrTableBitY = (bgTileY & 0x2) >> 1;
+            unsigned attrTableBitX = (bgTileX & 0x2) >> 1;
+
+//            log->warn("For tile (%02d, %02d): attr: (%02d, %02d), bits: (%02d, %02d)",
+//                      bgTileX, bgTileY, attrTableX, attrTableY, attrTableBitX, attrTableBitY);
+
+            unsigned shift = 4 * attrTableBitY + attrTableBitX;
+
+            unsigned paletteTop = unsigned((attrTableVal & 0x3) << shift) >> shift;
+            unsigned paletteIndex = (paletteTop << 2) | bgColor;
+
             //pixel = applyPalette(regs.bgp, bgColor);
-            pixel = bgColor;
+            pixel = paletteIndex;
         }
         framebuffer[scanline][i] = pixel;
     }
