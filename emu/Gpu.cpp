@@ -24,7 +24,7 @@ static unsigned normalizePaletteIndex(unsigned i) {
 void Gpu::sortSprites() {
     unsigned numVisibleSprites = 0;
     for (Byte i = 0; i < 64; i++) {
-        Byte spriteY = spriteRam[4 * i];
+        Byte spriteY = spriteRam[4 * i] + 1;
         if (scanline < spriteY || scanline > spriteY + 8) {
             continue;
         }
