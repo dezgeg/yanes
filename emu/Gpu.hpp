@@ -85,8 +85,10 @@ class Gpu {
     Byte vram[2048];
     Byte paletteRam[0x20]; // keep this after vram!!!
     Byte spriteRam[256];
+    Byte visibleSprites[8];
     GpuRegs regs;
 
+    void sortSprites();
     void renderScanline();
     static Byte drawTilePixel(Byte* tile, unsigned int x, unsigned int y, bool large);
 

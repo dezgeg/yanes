@@ -2,6 +2,8 @@
 #include "Gpu.hpp"
 #include "Rom.hpp"
 
+#include <algorithm>
+
 const Byte Gpu::colorTable[] = {
         3, 3, 3, 4, 1, 0, 6, 0, 0, 6, 2, 3, 3, 0, 4, 3, 0, 5, 0, 1, 5, 0, 2, 4, 0, 2, 3, 0, 2, 1, 1, 3, 0, 0, 4, 0, 2,
         2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 6, 3, 0, 7, 2, 0, 7, 0, 4, 7, 0, 5, 4, 0, 7, 0, 0, 7, 0, 3, 6, 0, 3,
@@ -19,12 +21,38 @@ static unsigned normalizePaletteIndex(unsigned i) {
     return i;
 }
 
+void Gpu::sortSprites() {
+    unsigned numVisibleSprites = 0;
+    for (Byte i = 0; i < 64; i++) {
+        Byte spriteY = spriteRam[4 * i];
+        if (scanline < spriteY || scanline > spriteY + 8) {
+            continue;
+        }
+        if (numVisibleSprites >= 8) {
+            regs.lostSprites = 1;
+        } else {
+            visibleSprites[numVisibleSprites++] = i;
+        }
+    }
+
+    std::sort(visibleSprites, visibleSprites + numVisibleSprites, [this](Byte a, Byte b) {
+        unsigned xa = spriteRam[4 * a + 3];
+        unsigned xb = spriteRam[4 * b + 3];
+        return xa < xb;
+    });
+
+    for (unsigned i = numVisibleSprites; i < 8; i++) {
+        visibleSprites[i] = 0xff;
+    }
+}
+
 bool Gpu::tick(long cycles) {
     cycleResidue += cycles;
     if (cycleResidue >= ScanlineCycles) {
         cycleResidue -= ScanlineCycles;
 
         if (scanline < VblankStartScanline) {
+            sortSprites();
             renderScanline();
         }
 
