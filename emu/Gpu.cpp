@@ -25,7 +25,7 @@ void Gpu::sortSprites() {
     unsigned numVisibleSprites = 0;
     for (Byte i = 0; i < 64; i++) {
         Byte spriteY = spriteRam[4 * i] + 1;
-        if (scanline < spriteY || scanline > spriteY + 8) {
+        if (scanline < spriteY || scanline >= spriteY + 8) {
             continue;
         }
         if (numVisibleSprites >= 8) {
@@ -125,6 +125,20 @@ void Gpu::renderScanline() {
             //pixel = applyPalette(regs.bgp, bgColor);
             pixel = paletteRam[normalizePaletteIndex(paletteIndex)];
         }
+
+        if (regs.spritesEnabled) {
+            for (unsigned j = 0; j < 8; j++) {
+                unsigned spriteIndex = visibleSprites[j];
+                if (spriteIndex == 0xff)
+                    continue;
+                unsigned x = spriteRam[4 * spriteIndex + 3];
+                if (i < x || i >= x + 8) {
+                    continue;
+                }
+                pixel = 0;
+            }
+        }
+
         framebuffer[scanline][i] = pixel;
     }
 }
