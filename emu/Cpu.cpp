@@ -23,7 +23,7 @@ Byte Cpu::doAddSub(Byte lhs, Byte rhs, bool isAdd, bool isCmp) {
         regs.flags.c = (Word(lhs) + Word(rhs) + carry) > 0xff;
     } else {
         result = lhs - rhs - Byte(1 - carry);
-        regs.flags.c = !((Word(lhs) + Word(rhs) + carry) > 0xff);
+        regs.flags.c = !(SWord(lhs) - SWord(rhs) - SWord(1 - carry) < 0);
     }
 
     bool lhsSign = !!(lhs & 0x80);
