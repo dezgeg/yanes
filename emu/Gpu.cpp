@@ -134,6 +134,9 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             } else if (regs.vramAddr >= 0x3f00 && regs.vramAddr < 0x3f20) {
                 unsigned paletteAddr = regs.vramAddr - 0x3f00;
                 paletteAddr = normalizePaletteIndex(paletteAddr);
+                if (isWrite) {
+                    *pData &= 0x3f;
+                }
                 BusUtil::arrayMemAccess(paletteRam, paletteAddr, pData, isWrite);
             } else {
                 Word address = (regs.vramAddr - 0x2000) % sizeof(vram);
