@@ -117,6 +117,18 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             }
             break;
 
+        case 0x2003:
+            BusUtil::simpleRegAccess(&regs.spriteRamAddr, pData, isWrite);
+            break;
+
+        case 0x2004:
+            if (isWrite) {
+                spriteRam[regs.spriteRamAddr++] = *pData;
+            } else {
+                *pData = spriteRam[regs.spriteRamAddr];
+            }
+            break;
+
         case 0x2006:
             if (!regs.vramAddrRegSelect) {
                 BusUtil::simpleRegAccess(&regs.vramAddrHi, pData, isWrite, (1 << 6) - 1);

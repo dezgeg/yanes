@@ -60,6 +60,8 @@ struct GpuRegs {
             Byte inVblank : 1;
         };
     };
+    Byte spriteRamAddr;
+
     Byte scrollOffsetHi, scrollOffsetLo;
     union {
         Word vramAddr;
@@ -82,6 +84,7 @@ class Gpu {
     Byte framebuffer[ScreenHeight][ScreenWidth];
     Byte vram[2048];
     Byte paletteRam[0x20]; // keep this after vram!!!
+    Byte spriteRam[256];
     GpuRegs regs;
 
     void renderScanline();
@@ -100,6 +103,7 @@ public:
         std::memset(&framebuffer[0][0], 0, sizeof(framebuffer));
         std::memset(&vram[0], 0, sizeof(vram));
         std::memset(&paletteRam[0], 0, sizeof(paletteRam));
+        std::memset(&spriteRam[0], 0, sizeof(spriteRam));
         std::memset(&regs, 0, sizeof(regs));
     }
 
