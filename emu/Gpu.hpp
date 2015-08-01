@@ -115,5 +115,6 @@ public:
     void setRenderEnabled(bool renderEnabled) { this->renderEnabled = renderEnabled; }
 
     void registerAccess(Word reg, Byte* pData, bool isWrite);
+    void spriteDmaWrite(Byte addr, Byte data);
     bool tick(long cycles);
 };

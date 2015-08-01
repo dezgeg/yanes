@@ -12,6 +12,13 @@ void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType acces
         BusUtil::arrayMemAccess(ram, address & 0x7ff, pData, isWrite);
     } else if (address <= 0x2007) {
         gpu->registerAccess(address, pData, isWrite);
+    } else if (address == 0x4014) {
+        if (!isWrite) {
+            log->warn("Read from sprite RAM DMA???");
+            return;
+        }
+        spriteDmaBytes = 256;
+        spriteDmaBank = *pData;
     } else if (address >= 0x4016 && address <= 0x4017) {
         joypad->regAccess(address, pData, isWrite);
     } else if (address >= 0x8000) {
@@ -61,4 +68,13 @@ void Bus::setNmiState(bool state) {
 
 IrqSet Bus::getPendingIrqs() {
     return irqsPending;
+}
+
+bool Bus::tickDma() {
+    if (!spriteDmaBytes)
+        return false;
+    spriteDmaBytes--;
+
+    gpu->spriteDmaWrite(spriteDmaBytes, memRead8((spriteDmaBank << 8) | spriteDmaBytes, "Sprite DMA"));
+    return true;
 }

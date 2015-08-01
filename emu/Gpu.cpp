@@ -123,7 +123,7 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
 
         case 0x2004:
             if (isWrite) {
-                spriteRam[regs.spriteRamAddr++] = *pData;
+                spriteDmaWrite(regs.spriteRamAddr++, *pData);
             } else {
                 *pData = spriteRam[regs.spriteRamAddr];
             }
@@ -165,4 +165,8 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             log->warn("Unhandled GPU register %s to register %04X", isWrite ? "write" : "read", reg);
             break;
     }
+}
+
+void Gpu::spriteDmaWrite(Byte addr, Byte data) {
+    spriteRam[addr] = data;
 }

@@ -27,6 +27,8 @@ class Bus {
 
     IrqSet irqsPending;
     bool lastNmiState;
+    unsigned spriteDmaBytes;
+    Byte spriteDmaBank;
 
     Byte ram[2048];
 
@@ -39,7 +41,9 @@ public:
             joypad(joypad),
             sound(sound),
             irqsPending(0),
-            lastNmiState(false) {
+            lastNmiState(false),
+            spriteDmaBytes(0),
+            spriteDmaBank(0) {
         std::memset(ram, 0xAA, sizeof(ram));
     }
 
@@ -52,4 +56,5 @@ public:
 
     void setNmiState(bool state);
     IrqSet getPendingIrqs();
+    bool tickDma();
 };
