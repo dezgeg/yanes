@@ -11,6 +11,14 @@ const Byte Gpu::colorTable[] = {
         0, 0, 0, 0, 0, 0, 0
 };
 
+static unsigned normalizePaletteIndex(unsigned i) {
+    // XXX: does this work for sprites?
+    if ((i & 0x3) == 0x0) {
+        return 0;
+    }
+    return i;
+}
+
 bool Gpu::tick(long cycles) {
     cycleResidue += cycles;
     if (cycleResidue >= ScanlineCycles) {
@@ -87,7 +95,7 @@ void Gpu::renderScanline() {
             unsigned paletteIndex = (paletteTop << 2) | bgColor;
 
             //pixel = applyPalette(regs.bgp, bgColor);
-            pixel = paletteRam[paletteIndex];
+            pixel = paletteRam[normalizePaletteIndex(paletteIndex)];
         }
         framebuffer[scanline][i] = pixel;
     }
@@ -124,7 +132,9 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
                 log->warn("VRAM %s to pattern table addr %04X ???", isWrite ? "write" : "read", regs.vramAddr);
                 // forward to bus maybe?
             } else if (regs.vramAddr >= 0x3f00 && regs.vramAddr < 0x3f20) {
-                BusUtil::arrayMemAccess(paletteRam, regs.vramAddr - 0x3f00, pData, isWrite);
+                unsigned paletteAddr = regs.vramAddr - 0x3f00;
+                paletteAddr = normalizePaletteIndex(paletteAddr);
+                BusUtil::arrayMemAccess(paletteRam, paletteAddr, pData, isWrite);
             } else {
                 Word address = (regs.vramAddr - 0x2000) % sizeof(vram);
                 BusUtil::arrayMemAccess(vram, address, pData, isWrite);
