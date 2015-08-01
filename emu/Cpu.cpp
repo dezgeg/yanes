@@ -229,7 +229,10 @@ long Cpu::handleColumn4C(Byte highNybble, bool isTwoByte) {
 
     switch (highNybble) {
         case 0x2: {
-            regs.setNZV(bus->memRead8(addr));
+            Byte b = bus->memRead8(addr);
+            regs.flags.z = (regs.a & b) == 0;
+            regs.flags.v = !!(b & bit(6));
+            regs.flags.n = !!(b & bit(7));
             return INSN_DONE(3, "BIT $0x%0*x", fieldWidth, addr);
         }
         case 0x8: {

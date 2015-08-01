@@ -32,11 +32,6 @@ struct Regs {
         flags.z = b == 0;
         flags.n = !!(b & 0x80);
     }
-
-    void setNZV(Byte b) {
-        setNZ(b);
-        flags.v = !!(b & bit(6));
-    }
 };
 
 #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
