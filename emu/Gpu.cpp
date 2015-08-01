@@ -89,9 +89,9 @@ void Gpu::renderScanline() {
 //            log->warn("For tile (%02d, %02d): attr: (%02d, %02d), bits: (%02d, %02d)",
 //                      bgTileX, bgTileY, attrTableX, attrTableY, attrTableBitX, attrTableBitY);
 
-            unsigned shift = 4 * attrTableBitY + attrTableBitX;
+            unsigned shift = 4 * attrTableBitY + 2 * attrTableBitX;
 
-            unsigned paletteTop = unsigned((attrTableVal & 0x3) << shift) >> shift;
+            unsigned paletteTop = (attrTableVal >> shift) & 0x3;
             unsigned paletteIndex = (paletteTop << 2) | bgColor;
 
             //pixel = applyPalette(regs.bgp, bgColor);
