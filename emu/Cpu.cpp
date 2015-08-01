@@ -29,8 +29,11 @@ Byte Cpu::doAddSub(Byte lhs, Byte rhs, bool isAdd, bool isCmp) {
     bool lhsSign = !!(lhs & 0x80);
     bool rhsSign = !!(rhs & 0x80);
     bool resultSign = !!(result & 0x80);
-    regs.flags.v = lhsSign == rhsSign && resultSign != lhsSign;
+
     regs.setNZ(result);
+    if (!isCmp) {
+        regs.flags.v = lhsSign == rhsSign && resultSign != lhsSign;
+    }
 
     return result;
 }
