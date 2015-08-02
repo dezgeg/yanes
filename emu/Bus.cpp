@@ -5,8 +5,6 @@
 #include "Rom.hpp"
 #include "Sound.hpp"
 
-#include <algorithm>
-
 void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType accessType) {
     if (address <= 0x1fff) {
         BusUtil::arrayMemAccess(ram, address & 0x7ff, pData, isWrite);
