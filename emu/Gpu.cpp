@@ -215,8 +215,11 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
         case 7: {
             // XXX: latch behaviour of VRAM reads
             if (regs.vramAddr < 0x2000) {
-                log->warn("VRAM %s to pattern table addr %04X ???", isWrite ? "write" : "read", regs.vramAddr);
-                // forward to bus maybe?
+                if (isWrite) {
+                    log->warn("VRAM %s to pattern table addr %04X ???", isWrite ? "write" : "read", regs.vramAddr);
+                } else {
+                    *pData = bus->getRom()->getChrRom()[regs.vramAddr];
+                }
             } else if (regs.vramAddr >= 0x3f00 && regs.vramAddr < 0x3f20) {
                 unsigned paletteAddr = regs.vramAddr - 0x3f00;
                 paletteAddr = normalizePaletteIndex(paletteAddr);
@@ -228,7 +231,7 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
                 Word address = (regs.vramAddr - 0x2000) % sizeof(vram);
                 BusUtil::arrayMemAccess(vram, address, pData, isWrite);
             }
-            log->warn("VRAM %s [%02x] to addr %04X", isWrite ? "write" : "read", *pData, regs.vramAddr);
+//            log->warn("VRAM %s [%02x] to addr %04X", isWrite ? "write" : "read", *pData, regs.vramAddr);
 
             regs.vramAddr += regs.vramPortAddressIncr ? 32 : 1;
             regs.vramAddrHi &= (1 << 6) - 1;
