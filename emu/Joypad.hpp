@@ -15,6 +15,8 @@ enum PadKeys {
     Pad_AllKeys = 0xff,
 };
 
+class Logger;
+
 class Joypad {
     Logger* log;
     Byte currentKeys;   // state of keys pressed in GUI, 1 = pressed
@@ -36,24 +38,7 @@ public:
         return false;
     }
 
-    void regAccess(Word address, Byte* pData, bool isWrite) {
-        unsigned port = address - 0x4016;
-        if (port == 0 && isWrite) {
-            resetLatch = !!(*pData & 1);
-        }
-        if (resetLatch)
-            latchedKeys = latestKeys;
-
-        if (!isWrite) {
-            if (port == 0) {
-                *pData = (latchedKeys & 0x1) | 0x40;
-                latchedKeys = (latchedKeys >> 1) | 0x80;
-                // log->warn("Returned keys to NES: %02x", (unsigned)*pData);
-            } else {
-                *pData = 0x2; // not connected
-            }
-        }
-    }
+    void regAccess(Word address, Byte* pData, bool isWrite);
 
     void keysPressed(Byte keys) {
         currentKeys |= keys;
