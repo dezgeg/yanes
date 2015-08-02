@@ -61,6 +61,7 @@ bool Gpu::tick(long cycles) {
             scanline = 0;
             frame++;
             regs.inVblank = 0;
+            regs.spriteZeroHit = 0;
         }
     }
     return regs.inVblank && regs.vblankIrqEnabled;
@@ -132,6 +133,7 @@ void Gpu::renderScanline() {
         Byte spriteColor = 0;
         Byte spritePaletteIndex = 0;
         bool spriteHiPriority = false;
+        bool isSpriteZero = false;
 
         if (regs.spritesEnabled) {
             // XXX: Really direct pointer access?
@@ -152,6 +154,7 @@ void Gpu::renderScanline() {
                                             false, spr);
                 spritePaletteIndex = 0x10 + 0x4 * spr->flags.palette + spriteColor;
                 spriteHiPriority = !spr->flags.lowPriority;
+                isSpriteZero = spriteIndex == 0;
                 break;
             }
         }
@@ -161,6 +164,10 @@ void Gpu::renderScanline() {
             pixel = paletteRam[normalizePaletteIndex(bgPaletteIndex)];
         } else {
             pixel = paletteRam[normalizePaletteIndex(spritePaletteIndex)];
+        }
+
+        if (spriteColor && bgColor && isSpriteZero) {
+            regs.spriteZeroHit = 1;
         }
 
         framebuffer[scanline][i] = pixel;
