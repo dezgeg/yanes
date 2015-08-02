@@ -455,7 +455,7 @@ long Cpu::handleColumn6E(Byte opcode) {
         case 0x6: {
             bool origCarry = regs.flags.c;
             regs.flags.c = !!(b & 0x01);
-            b = (regs.a >> 1) | (origCarry ? 0x80 : 0x0);
+            b = (b >> 1) | (origCarry ? 0x80 : 0x0);
             regs.setNZ(b);
             str = "ROR";
             break;
