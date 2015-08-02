@@ -40,7 +40,7 @@ void Rom::readRomFile(char const* fileName) {
 
     prgRomData.resize(header.getPrgRomSize());
     stream.read((char*)&prgRomData[0], header.getPrgRomSize());
-    chrRomData.resize(header.getChrRomSize());
+    chrRomData.resize(std::min(8192ul, header.getChrRomSize()));
     stream.read((char*)&chrRomData[0], header.getChrRomSize());
 
     assert(sz == (size_t)stream.tellg());
