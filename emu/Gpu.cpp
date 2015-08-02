@@ -24,7 +24,7 @@ static unsigned normalizePaletteIndex(unsigned i) {
 void Gpu::sortSprites() {
     unsigned numVisibleSprites = 0;
     for (Byte i = 0; i < 64; i++) {
-        int spriteY = sprites[i].y;
+        int spriteY = sprites[i].y + 1;
         if (scanline < spriteY || scanline >= spriteY + 8) {
             continue;
         }
@@ -35,7 +35,7 @@ void Gpu::sortSprites() {
         }
     }
 
-    std::sort(visibleSprites, visibleSprites + numVisibleSprites, [this](Byte a, Byte b) {
+    std::sort(visibleSprites, visibleSprites + numVisibleSprites, [ this ](Byte a, Byte b) {
         return sprites[a].x < sprites[b].x;
     });
 
@@ -96,7 +96,7 @@ void Gpu::renderScanline() {
         Byte* bgTileBase = vram;
 
         Byte bgColor = 0;
-        Byte pixel = 0;
+        Byte bgPaletteIndex = 0;
         if (regs.bgEnabled) {
             unsigned bgX = i + scrollX;
             unsigned bgTileX = (bgX / 8) % 32;
@@ -118,24 +118,41 @@ void Gpu::renderScanline() {
             unsigned shift = 4 * attrTableBitY + 2 * attrTableBitX;
 
             unsigned paletteTop = (attrTableVal >> shift) & 0x3;
-            unsigned paletteIndex = (paletteTop << 2) | bgColor;
-
-            //pixel = applyPalette(regs.bgp, bgColor);
-            pixel = paletteRam[normalizePaletteIndex(paletteIndex)];
+            bgPaletteIndex = (paletteTop << 2) | bgColor;
         }
+        Byte pixel = paletteRam[normalizePaletteIndex(bgPaletteIndex)];
+
+        Byte spriteColor = 0;
+        Byte spritePaletteIndex = 0;
+        bool spriteHiPriority = false;
 
         if (regs.spritesEnabled) {
+            // XXX: Really direct pointer access?
+            Byte* spritePatternBase = &bus->getRom()->getChrRom()[regs.spritePatternTableAddr ? 0x1000 : 0];
+
             for (unsigned j = 0; j < 8; j++) {
                 unsigned spriteIndex = visibleSprites[j];
-                if (spriteIndex == 0xff)
+                if (spriteIndex == 0xff) {
                     continue;
+                }
 
                 Sprite* spr = &sprites[spriteIndex];
                 if (i < spr->x || i >= unsigned(spr->x) + 8) {
                     continue;
                 }
-                pixel = 0;
+
+                spriteColor = drawTilePixel(spritePatternBase + 16 * spr->tileNumber, i - spr->x, scanline - spr->y - 1,
+                                            false);
+                spritePaletteIndex = 0x10 + 0x4 * spr->flags.palette + spriteColor;
+                spriteHiPriority = !spr->flags.lowPriority;
+                break;
             }
+        }
+
+        if (!spriteHiPriority) {
+            pixel = paletteRam[normalizePaletteIndex(bgPaletteIndex)];
+        } else {
+            pixel = paletteRam[normalizePaletteIndex(spritePaletteIndex)];
         }
 
         framebuffer[scanline][i] = pixel;
