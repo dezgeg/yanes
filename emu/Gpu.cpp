@@ -175,14 +175,15 @@ void Gpu::renderScanline() {
 }
 
 void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
+    reg &= 0x7;
     switch (reg) {
-        case 0x2000:
+        case 0:
             BusUtil::simpleRegAccess(&regs.ctrl1, pData, isWrite);
             break;
-        case 0x2001:
+        case 1:
             BusUtil::simpleRegAccess(&regs.ctrl2, pData, isWrite);
             break;
-        case 0x2002:
+        case 2:
             BusUtil::simpleRegAccess(&regs.status, pData, isWrite, 0);
             if (!isWrite) {
                 regs.inVblank = 0;
@@ -190,11 +191,11 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             }
             break;
 
-        case 0x2003:
+        case 3:
             BusUtil::simpleRegAccess(&regs.spriteRamAddr, pData, isWrite);
             break;
 
-        case 0x2004:
+        case 4:
             if (isWrite) {
                 spriteDmaWrite(regs.spriteRamAddr++, *pData);
             } else {
@@ -202,7 +203,7 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             }
             break;
 
-        case 0x2006:
+        case 6:
             if (!regs.vramAddrRegSelect) {
                 BusUtil::simpleRegAccess(&regs.vramAddrHi, pData, isWrite, (1 << 6) - 1);
             } else {
@@ -211,7 +212,7 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             regs.vramAddrRegSelect = !regs.vramAddrRegSelect;
             break;
 
-        case 0x2007: {
+        case 7: {
             // XXX: latch behaviour of VRAM reads
             if (regs.vramAddr < 0x2000) {
                 log->warn("VRAM %s to pattern table addr %04X ???", isWrite ? "write" : "read", regs.vramAddr);
@@ -233,10 +234,6 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             regs.vramAddrHi &= (1 << 6) - 1;
             break;
         }
-
-        default:
-            log->warn("Unhandled GPU register %s to register %04X", isWrite ? "write" : "read", reg);
-            break;
     }
 }
 

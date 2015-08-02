@@ -10,7 +10,7 @@
 void Bus::memAccess(Word address, Byte* pData, bool isWrite, MemAccessType accessType) {
     if (address <= 0x1fff) {
         BusUtil::arrayMemAccess(ram, address & 0x7ff, pData, isWrite);
-    } else if (address <= 0x2007) {
+    } else if (address <= 0x3fff) {
         gpu->registerAccess(address, pData, isWrite);
     } else if (address == 0x4014) {
         if (!isWrite) {
