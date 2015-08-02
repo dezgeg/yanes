@@ -53,7 +53,7 @@ long Cpu::tick() {
     IrqSet pendingIrqs = bus->getPendingIrqs();
     bool nmiPending = pendingIrqs & Irq_NMI;
     if (nmiPending || (!regs.flags.i && pendingIrqs & Irq_IRQ)) {
-        log->warn("IRQ hit!");
+        // log->warn("IRQ hit!");
         // XXX: don't copypaste
         push(regs.flags.bits);
 
