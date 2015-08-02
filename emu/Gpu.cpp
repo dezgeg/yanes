@@ -66,11 +66,19 @@ bool Gpu::tick(long cycles) {
     return regs.inVblank && regs.vblankIrqEnabled;
 }
 
-Byte Gpu::drawTilePixel(Byte* tile, unsigned x, unsigned y, bool large) {
+Byte Gpu::drawTilePixel(Byte* tile, unsigned x, unsigned y, bool large, Sprite* sprite) {
     //Byte height = large ? 8 : 8; // WIP
+    if (sprite && sprite->flags.vertFlip) {
+        y = 7 - y;
+    }
 
     Byte lsbs = tile[y + 0];
     Byte msbs = tile[y + 8];
+
+    if (sprite && sprite->flags.horizFlip) {
+        lsbs = reverseBits(lsbs);
+        msbs = reverseBits(msbs);
+    }
 
     return (!!(lsbs & (0x80 >> x))) |
            ((!!(msbs & (0x80 >> x))) << 1);
@@ -103,7 +111,7 @@ void Gpu::renderScanline() {
             unsigned bgTileXBit = bgX % 8;
 
             Byte tileNum = bgTileBase[bgTileY * 32 + bgTileX];
-            bgColor = drawTilePixel(bgPatternBase + 16 * tileNum, bgTileXBit, bgTileYBit, false);
+            bgColor = drawTilePixel(bgPatternBase + 16 * tileNum, bgTileXBit, bgTileYBit, false, nullptr);
 
             unsigned attrTableY = bgTileY / 4;
             unsigned attrTableX = bgTileX / 4;
@@ -141,7 +149,7 @@ void Gpu::renderScanline() {
                 }
 
                 spriteColor = drawTilePixel(spritePatternBase + 16 * spr->tileNumber, i - spr->x, scanline - spr->y - 1,
-                                            false);
+                                            false, spr);
                 spritePaletteIndex = 0x10 + 0x4 * spr->flags.palette + spriteColor;
                 spriteHiPriority = !spr->flags.lowPriority;
                 break;

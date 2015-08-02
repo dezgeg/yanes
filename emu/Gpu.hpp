@@ -111,7 +111,7 @@ class Gpu {
 
     void sortSprites();
     void renderScanline();
-    static Byte drawTilePixel(Byte* tile, unsigned int x, unsigned int y, bool large);
+    static Byte drawTilePixel(Byte* tile, unsigned int x, unsigned int y, bool large, Sprite* sprite);
 
 public:
     static const Byte colorTable[64 * 3];
