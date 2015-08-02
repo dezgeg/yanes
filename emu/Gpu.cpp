@@ -24,7 +24,7 @@ static unsigned normalizePaletteIndex(unsigned i) {
 void Gpu::sortSprites() {
     unsigned numVisibleSprites = 0;
     for (Byte i = 0; i < 64; i++) {
-        Byte spriteY = spriteRam[4 * i] + 1;
+        int spriteY = sprites[i].y;
         if (scanline < spriteY || scanline >= spriteY + 8) {
             continue;
         }
@@ -36,9 +36,7 @@ void Gpu::sortSprites() {
     }
 
     std::sort(visibleSprites, visibleSprites + numVisibleSprites, [this](Byte a, Byte b) {
-        unsigned xa = spriteRam[4 * a + 3];
-        unsigned xb = spriteRam[4 * b + 3];
-        return xa < xb;
+        return sprites[a].x < sprites[b].x;
     });
 
     for (unsigned i = numVisibleSprites; i < 8; i++) {
@@ -131,8 +129,9 @@ void Gpu::renderScanline() {
                 unsigned spriteIndex = visibleSprites[j];
                 if (spriteIndex == 0xff)
                     continue;
-                unsigned x = spriteRam[4 * spriteIndex + 3];
-                if (i < x || i >= x + 8) {
+
+                Sprite* spr = &sprites[spriteIndex];
+                if (i < spr->x || i >= unsigned(spr->x) + 8) {
                     continue;
                 }
                 pixel = 0;

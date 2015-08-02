@@ -72,6 +72,23 @@ struct GpuRegs {
     bool vramAddrRegSelect;
 };
 
+struct alignas(1) OamFlags {
+    Byte palette : 2;
+    Byte unused : 3;
+    Byte lowPriority : 1;
+    Byte horizFlip : 1;
+    Byte vertFlip : 1;
+};
+static_assert(sizeof(OamFlags) == 1, "sizeof OamFlags");
+
+struct alignas(1) Sprite {
+    Byte y;
+    Byte tileNumber;
+    OamFlags flags;
+    Byte x;
+};
+static_assert(sizeof(Sprite) == 4, "sizeof Sprite");
+
 class Gpu {
     Logger* log;
     Bus* bus;
@@ -84,7 +101,11 @@ class Gpu {
     Byte framebuffer[ScreenHeight][ScreenWidth];
     Byte vram[2048];
     Byte paletteRam[0x20]; // keep this after vram!!!
-    Byte spriteRam[256];
+    union {
+        Byte spriteRam[256];
+        Sprite sprites[64];
+    };
+
     Byte visibleSprites[8];
     GpuRegs regs;
 
