@@ -120,7 +120,6 @@ void Gpu::renderScanline() {
             unsigned paletteTop = (attrTableVal >> shift) & 0x3;
             bgPaletteIndex = (paletteTop << 2) | bgColor;
         }
-        Byte pixel = paletteRam[normalizePaletteIndex(bgPaletteIndex)];
 
         Byte spriteColor = 0;
         Byte spritePaletteIndex = 0;
@@ -149,7 +148,8 @@ void Gpu::renderScanline() {
             }
         }
 
-        if (!spriteHiPriority) {
+        Byte pixel;
+        if (!spriteHiPriority || spriteColor == 0) {
             pixel = paletteRam[normalizePaletteIndex(bgPaletteIndex)];
         } else {
             pixel = paletteRam[normalizePaletteIndex(spritePaletteIndex)];
