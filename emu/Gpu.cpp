@@ -152,6 +152,10 @@ void Gpu::renderScanline() {
 
                 spriteColor = drawTilePixel(spritePatternBase + 16 * spr->tileNumber, i - spr->x, scanline - spr->y - 1,
                                             false, spr);
+                if (!spriteColor) {
+                    continue;
+                }
+
                 spritePaletteIndex = 0x10 + 0x4 * spr->flags.palette + spriteColor;
                 spriteHiPriority = !spr->flags.lowPriority;
                 isSpriteZero = spriteIndex == 0;
