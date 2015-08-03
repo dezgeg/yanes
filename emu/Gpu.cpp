@@ -213,7 +213,6 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
             break;
 
         case 7: {
-            // XXX: latch behaviour of VRAM reads
             if (regs.vramAddr < 0x2000) {
                 if (isWrite) {
                     log->warn("VRAM %s to pattern table addr %04X ???", isWrite ? "write" : "read", regs.vramAddr);
@@ -227,6 +226,8 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
                 }
                 if (isWrite) {
                     *pData &= 0x3f;
+                } else {
+                    regs.vramReadLatch = *pData;
                 }
                 BusUtil::arrayMemAccess(paletteRam, paletteAddr, pData, isWrite);
             } else {
@@ -234,6 +235,10 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
                 BusUtil::arrayMemAccess(vram, address, pData, isWrite);
             }
 //            log->warn("VRAM %s [%02x] to addr %04X", isWrite ? "write" : "read", *pData, regs.vramAddr);
+
+            if (!isWrite) {
+                std::swap(regs.vramReadLatch, *pData);
+            }
 
             regs.vramAddr += regs.vramPortAddressIncr ? 32 : 1;
             regs.vramAddrHi &= (1 << 6) - 1;

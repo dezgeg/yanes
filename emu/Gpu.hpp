@@ -69,6 +69,7 @@ struct GpuRegs {
             Byte vramAddrLo, vramAddrHi;
         };
     };
+    Byte vramReadLatch;
     bool vramAddrRegSelect;
 };
 
