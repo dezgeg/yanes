@@ -19,7 +19,7 @@ struct InesRomHeader {
     char pad[5];
 
     size_t getMapper() {
-        return (flags6 & 0xf) | (flags7 & 0xf0);
+        return (flags6 >> 4) | (flags7 & 0xf0);
     }
 
     size_t getPrgRomSize() {
