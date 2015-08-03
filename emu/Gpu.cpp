@@ -235,7 +235,7 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
                 }
                 BusUtil::arrayMemAccess(paletteRam, paletteAddr, pData, isWrite);
             } else {
-                Word address = (regs.vramAddr - 0x2000) % sizeof(vram);
+                Word address = regs.vramAddr - 0x2000; // FIXME: mirror properly based on ROM mapper
                 BusUtil::arrayMemAccess(vram, address, pData, isWrite);
             }
 //            log->warn("VRAM %s [%02x] to addr %04X", isWrite ? "write" : "read", *pData, regs.vramAddr);

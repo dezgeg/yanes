@@ -100,7 +100,7 @@ class Gpu {
     int cycleResidue;
 
     Byte framebuffer[ScreenHeight][ScreenWidth];
-    Byte vram[2048];
+    Byte vram[4096]; // Really 2k, but pretend that potential cart RAM for name+attribute tables is here as well
     Byte paletteRam[0x20]; // keep this after vram!!!
     union {
         Byte spriteRam[256];
