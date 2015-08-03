@@ -373,6 +373,7 @@ long Cpu::handleColumnA(Byte highNybble) {
 
         case 0x8:
             regs.a = regs.x;
+            regs.setNZ(regs.a);
             return INSN_DONE(2, "TXA");
 
         case 0x9:
@@ -381,10 +382,12 @@ long Cpu::handleColumnA(Byte highNybble) {
 
         case 0xa:
             regs.x = regs.a;
+            regs.setNZ(regs.x);
             return INSN_DONE(2, "TAX");
 
         case 0xb:
             regs.x = regs.sp;
+            regs.setNZ(regs.x);
             return INSN_DONE(2, "TSX");
 
         case 0xc:
