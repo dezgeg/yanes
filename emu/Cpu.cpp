@@ -550,8 +550,9 @@ long Cpu::handleColumn159D(Byte opcode) {
             unreachable();
     }
 
-    if (!isImm && !isWrite)
+    if (!isImm && !isWrite) {
         b = bus->memRead8(effectiveAddr);
+    }
 
     const char* str;
     switch (action) {
