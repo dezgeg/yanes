@@ -70,7 +70,7 @@ long Cpu::tick() {
     long cycles = doTick(opcode);
     if (!cycles) {
         INSN_DBG_DECL();
-        log->warn("Unknown instruction, emulated as NOP");
+        log->warn("Unknown instruction 0x%02x, emulated as NOP", opcode);
         return INSN_DONE(1, "UNK #0x%02x", opcode);
     }
     return cycles;
