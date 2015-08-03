@@ -294,6 +294,7 @@ long Cpu::handleColumn8(Byte highNybble) {
 
         case 0x6:
             regs.a = pull();
+            regs.setNZ(regs.a);
             return INSN_DONE(4, "PLA");
 
         case 0x7:
