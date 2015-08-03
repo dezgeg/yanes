@@ -91,8 +91,10 @@ long Cpu::doTick(Byte opcode) {
         }
         case 0x6c: {
             Word indAddr = getPcWord();
-            // TODO: this instruction should be buggy?
-            INSN_BRANCH(bus->memRead16(indAddr));
+            // The infamous JMP chip bug
+            Byte lsb = bus->memRead8(indAddr);
+            Byte msb = bus->memRead8((indAddr & 0xff00) | Byte((indAddr + 1) & 0xff));
+            INSN_BRANCH((msb << 8) | lsb);
             return INSN_DONE(3, "JMP ($0x%04x)", indAddr);
         }
 
