@@ -268,7 +268,7 @@ long Cpu::handleColumn8(Byte highNybble) {
     INSN_DBG_DECL();
     switch (highNybble) {
         case 0x0:
-            push(regs.flags.bits);
+            push(regs.flags.bits | 0x30); // certain bits always ones
             return INSN_DONE(3, "PHP");
 
         case 0x1:
