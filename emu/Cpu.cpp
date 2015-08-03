@@ -57,7 +57,6 @@ long Cpu::tick() {
         // XXX: don't copypaste
         push(regs.flags.bits);
 
-        // XXX(RTS): off by one?
         regs.pc--;
         push(regs.pcHi);
         push(regs.pcLo);
@@ -153,7 +152,6 @@ long Cpu::handleColumn0(Byte highNybble) {
             regs.flags.b = 0;
 
             // No regs.pc--; since BRK has an unused byte operand
-            // XXX(RTS): off by one?
             push(regs.pcHi);
             push(regs.pcLo);
             regs.flags.i = 1;
@@ -165,7 +163,7 @@ long Cpu::handleColumn0(Byte highNybble) {
 
         case 0x2: {
             Word addr = getPcWord();
-            regs.pc--; // XXX(RTS): off by one?
+            regs.pc--;
             push(regs.pcHi);
             push(regs.pcLo);
             regs.pc++;
@@ -176,7 +174,7 @@ long Cpu::handleColumn0(Byte highNybble) {
         case 0x3: DO_BRANCH(regs.flags.n == 1, "BMI");
 
         case 0x4: {
-            INSN_BRANCH(pullWord() + 1); // XXX(RTS) off by one?
+            INSN_BRANCH(pullWord() + 1);
 
             regs.flags.bits = pull();
             regs.flags.b = 0;
@@ -186,7 +184,7 @@ long Cpu::handleColumn0(Byte highNybble) {
         case 0x5: DO_BRANCH(regs.flags.v == 0, "BVC");
 
         case 0x6: {
-            INSN_BRANCH(pullWord() + 1); // XXX(RTS) off by one?
+            INSN_BRANCH(pullWord() + 1);
             return INSN_DONE(6, "RTS");
         }
 
