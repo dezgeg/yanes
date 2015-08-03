@@ -18,13 +18,13 @@ struct Regs {
     };
     union Flags {
         struct {
-            bool n : 1;
-            bool v : 1;
-            bool b : 1;
-            bool d : 1;
-            bool i : 1;
-            bool z : 1;
             bool c : 1;
+            bool z : 1;
+            bool i : 1;
+            bool d : 1;
+            bool b : 1;
+            bool v : 1;
+            bool n : 1;
         };
         Byte bits;
     } flags;
