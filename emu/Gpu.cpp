@@ -1,6 +1,7 @@
 #include "Bus.hpp"
 #include "Gpu.hpp"
 #include "Rom.hpp"
+#include "Serializer.hpp"
 
 #include <algorithm>
 
@@ -253,4 +254,16 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
 
 void Gpu::spriteDmaWrite(Byte addr, Byte data) {
     spriteRam[addr] = data;
+}
+
+void Gpu::serialize(Serializer& ser) {
+    ser.handleObject("Gpu.frame", frame);
+    ser.handleObject("Gpu.scanline", scanline);
+    ser.handleObject("Gpu.cycleResidue", cycleResidue);
+    ser.handleObject("Gpu.framebuffer", framebuffer);
+    ser.handleObject("Gpu.vram", vram);
+    ser.handleObject("Gpu.paletteRam", paletteRam);
+    ser.handleObject("Gpu.sprites", sprites);
+    ser.handleObject("Gpu.visibleSprites", visibleSprites);
+    ser.handleObject("Gpu.regs", regs);
 }

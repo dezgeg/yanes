@@ -1,4 +1,5 @@
 #include "Cpu.hpp"
+#include "Serializer.hpp"
 
 #include <stdio.h>
 
@@ -598,4 +599,8 @@ long Cpu::handleColumn159D(Byte opcode) {
 
     // XXX cycle count
     return INSN_DONE(4, fmt, str, addrVal);
+}
+
+void Cpu::serialize(Serializer& ser) {
+    ser.handleObject("Cpu.regs", regs);
 }

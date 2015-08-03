@@ -2,6 +2,7 @@
 #include "Logger.hpp"
 #include "Rom.hpp"
 #include "Utils.hpp"
+#include "Serializer.hpp"
 
 #include <fstream>
 #include <cstring>
@@ -13,6 +14,7 @@ static constexpr size_t MAX_SAVE_RAM_SIZE = 0x10000;
 
 Rom::Rom(Logger* log, const char* fileName) :
         log(log),
+        fileName(fileName),
         saveRamFd(-1),
         saveRamData((Byte*)MAP_FAILED) {
 
@@ -47,12 +49,7 @@ void Rom::readRomFile(char const* fileName) {
 }
 
 void Rom::setupSaveRam(char const* name) {
-    std::string saveRamFile = name;
-    size_t dotIndex = saveRamFile.find_last_of('.');
-    if (dotIndex != std::string::npos) {
-        saveRamFile = saveRamFile.substr(0, dotIndex);
-    }
-    saveRamFile += ".sav";
+    std::string saveRamFile = replaceExtension(name, "sav");
 
     saveRamFd = open(saveRamFile.c_str(), O_CREAT | O_RDWR, 0644);
     if (saveRamFd < 0) {
@@ -86,6 +83,9 @@ void Rom::cartRomAccess(Word address, Byte* pData, bool isWrite) {
 
 void Rom::cartRamAccess(Word address, Byte* pData, bool isWrite) {
     BusUtil::arrayMemAccess(saveRamData, address, pData, isWrite);
+}
+
+void Rom::serialize(Serializer& ser) {
 }
 
 Rom::~Rom() {

@@ -18,3 +18,12 @@ void Nes::runOneInstruction() {
     sound.tick(cycleDelta);
     currentCycle += cycleDelta;
 }
+
+void Nes::serialize(Serializer& ser) {
+    ser.handleObject("Nes.currentCycle", currentCycle);
+    bus.serialize(ser);
+    gpu.serialize(ser);
+    cpu.serialize(ser);
+    joypad.serialize(ser);
+    sound.serialize(ser);
+}

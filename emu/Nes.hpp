@@ -6,6 +6,7 @@
 #include "Logger.hpp"
 #include "Rom.hpp"
 #include "Sound.hpp"
+#include "Serializer.hpp"
 
 class Nes {
     Logger* log;
@@ -27,11 +28,13 @@ public:
             currentCycle(0) {
     }
 
+
     Bus* getBus() { return &bus; }
     Cpu* getCpu() { return &cpu; }
     Gpu* getGpu() { return &gpu; }
-    Sound* getSound() { return &sound; }
     Joypad* getJoypad() { return &joypad; }
+    Sound* getSound() { return &sound; }
 
+    void serialize(Serializer& s);
     void runOneInstruction();
 };

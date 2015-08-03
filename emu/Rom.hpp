@@ -2,6 +2,7 @@
 
 #include "Platform.hpp"
 #include "Logger.hpp"
+#include "Serializer.hpp"
 
 #include <vector>
 #include <stdint.h>
@@ -39,6 +40,7 @@ static_assert(sizeof(InesRomHeader) == 16, "InesRomHeader is borked");
 class Rom {
     Logger* log;
     std::vector<Byte> prgRomData;
+    const char* fileName;
     std::vector<Byte> chrRomData;
 
     int saveRamFd;
@@ -48,6 +50,10 @@ class Rom {
 
     struct MapperRegs {
     } mapperRegs;
+
+    void readRomFile(const char* fileName);
+    void setupSaveRam(const char* name);
+    void setupMapper();
 
 public:
     Rom(Logger* log, const char* fileName);
@@ -63,7 +69,7 @@ public:
 
     void cartRomAccess(Word address, Byte* pData, bool isWrite);
     void cartRamAccess(Word address, Byte* pData, bool isWrite);
-    void readRomFile(char const* fileName);
-    void setupSaveRam(char const* name);
-    void setupMapper();
+    void serialize(Serializer& ser);
+
+    const char* getFileName() { return fileName; }
 };

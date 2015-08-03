@@ -3,6 +3,7 @@
 #include "Bus.hpp"
 #include "Logger.hpp"
 #include "Platform.hpp"
+#include "Serializer.hpp"
 
 struct Regs {
     Byte a;
@@ -98,4 +99,5 @@ public:
 
     void reset();
     long tick();
+    void serialize(Serializer& ser);
 };

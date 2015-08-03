@@ -1,3 +1,4 @@
+#include <QtWidgets/qformlayout.h>
 #include "emu/Utils.hpp"
 #include "gui/HexTextField.hpp"
 #include "gui/MainWindow.hpp"
@@ -150,6 +151,18 @@ void MainWindow::lcdKeyEvent(QKeyEvent* e) {
         case Qt::Key_Shift:
             keys = Pad_B;
             break;
+
+        case Qt::Key_F1:
+            if (e->type() == QEvent::KeyPress) {
+                saveGameState();
+            }
+            return;
+        case Qt::Key_F3:
+            if (e->type() == QEvent::KeyPress) {
+                loadGameState();
+            }
+            return;
+
         default:
             return;
     }
@@ -209,4 +222,24 @@ void GuiLogger::logImpl(const char* format, ...) {
     ui->logTextarea->insertPlainText("\n");
     ui->logTextarea->moveCursor(QTextCursor::End);
 #endif
+}
+
+void MainWindow::saveGameState() {
+    Serializer ser;
+
+    ser.beginSave();
+    gb.serialize(ser);
+    rom.serialize(ser);
+    ser.endSave();
+    ser.saveToFile(replaceExtension(rom.getFileName(), "st0"));
+}
+
+void MainWindow::loadGameState() {
+    Serializer ser;
+
+    ser.loadFromFile(replaceExtension(rom.getFileName(), "st0"));
+    ser.beginLoad();
+    gb.serialize(ser);
+    rom.serialize(ser);
+    ser.endLoad();
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Platform.hpp"
+#include "Serializer.hpp"
 
 enum PadKeys {
     Pad_A = 1 << 0,
@@ -46,5 +47,12 @@ public:
 
     void keysReleased(Byte keys) {
         currentKeys &= ~keys;
+    }
+
+    void serialize(Serializer& ser) {
+        ser.handleObject("Joypad.currentKeys", currentKeys);
+        ser.handleObject("Joypad.latestKeys", latestKeys);
+        ser.handleObject("Joypad.latchedKeys", latchedKeys);
+        ser.handleObject("Joypad.resetLatch", resetLatch);
     }
 };

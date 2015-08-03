@@ -76,3 +76,11 @@ bool Bus::tickDma() {
     gpu->spriteDmaWrite(spriteDmaBytes, memRead8((spriteDmaBank << 8) | spriteDmaBytes, "Sprite DMA"));
     return true;
 }
+
+void Bus::serialize(Serializer& ser) {
+    ser.handleObject("Bus.irqsPending", irqsPending);
+    ser.handleObject("Bus.lastNmiState", lastNmiState);
+    ser.handleObject("Bus.spriteDmaBytes", spriteDmaBytes);
+    ser.handleObject("Bus.spriteDmaBank", spriteDmaBank);
+    ser.handleObject("Bus.ram", ram);
+}

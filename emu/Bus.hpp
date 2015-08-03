@@ -4,6 +4,7 @@
 #include "Logger.hpp"
 #include "Platform.hpp"
 #include "Rom.hpp"
+#include "Serializer.hpp"
 #include "Gpu.hpp"
 #include "Joypad.hpp"
 #include "Sound.hpp"
@@ -48,6 +49,7 @@ public:
     }
 
     Rom* getRom() { return rom; }
+    void serialize(Serializer& ser);
 
     Byte memRead8(Word address, MemAccessType accessType = "CPU");
     void memWrite8(Word address, Byte value, MemAccessType accessType = "CPU");
