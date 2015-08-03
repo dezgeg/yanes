@@ -415,6 +415,7 @@ long Cpu::handleColumn6E(Byte opcode) {
 
     // Handle the special cases here: index reg is Y, and not RMW instructions
     Word specialEffAddr = hasIndexReg ? addr + regs.y : addr;
+    specialEffAddr &= mask;
     switch ((opcode >> 4) & ~1) {
         case 0x8:
             bus->memWrite8(specialEffAddr, regs.x);
@@ -428,9 +429,10 @@ long Cpu::handleColumn6E(Byte opcode) {
     }
 
     Word effAddr = hasIndexReg ? addr + regs.x : addr;
+    effAddr &= mask;
     const char* str;
 
-    Byte b = bus->memRead8(effAddr & mask);
+    Byte b = bus->memRead8(effAddr);
     switch ((opcode >> 4) & ~1) {
         case 0x0:
             regs.flags.c = !!(b & 0x80);
