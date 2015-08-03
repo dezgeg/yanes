@@ -16,7 +16,7 @@ const Byte Gpu::colorTable[] = {
 static unsigned normalizePaletteIndex(unsigned i) {
     // XXX: does this work for sprites?
     if ((i & 0x3) == 0x0) {
-        return 0;
+        return i & 0x10 ? i & ~0x10 : 0;
     }
     return i;
 }
@@ -222,7 +222,9 @@ void Gpu::registerAccess(Word reg, Byte* pData, bool isWrite) {
                 }
             } else if (regs.vramAddr >= 0x3f00 && regs.vramAddr < 0x3f20) {
                 unsigned paletteAddr = regs.vramAddr - 0x3f00;
-                paletteAddr = normalizePaletteIndex(paletteAddr);
+                if (paletteAddr & 0x10 && (paletteAddr & 0x3) == 0x0) {
+                    paletteAddr &= ~0x10u;
+                }
                 if (isWrite) {
                     *pData &= 0x3f;
                 }
