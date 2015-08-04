@@ -54,12 +54,12 @@ long Cpu::tick() {
     if (nmiPending || (!regs.flags.i && pendingIrqs & Irq_IRQ)) {
         // log->warn("IRQ hit!");
         // XXX: don't copypaste
-        push(regs.flags.bits);
 
-        regs.pc--;
         push(regs.pcHi);
         push(regs.pcLo);
         regs.flags.i = 1;
+        push(regs.flags.bits);
+
         regs.pc = bus->memRead16(nmiPending ? VECTOR_NMI : VECTOR_IRQ);
         return 4; // XXX IRQ latency?
     }
@@ -147,14 +147,16 @@ long Cpu::handleColumn0(Byte highNybble) {
 
     switch (highNybble) {
         case 0x0: {
+            // NOTE: Unlike JSR, pushes real return address (instead of -1)
+            regs.pc++; // Unused immediate byte
+            push(regs.pcHi);
+            push(regs.pcLo);
+            regs.flags.i = 1;
+
             regs.flags.b = 1;
             push(regs.flags.bits);
             regs.flags.b = 0;
 
-            // No regs.pc--; since BRK has an unused byte operand
-            push(regs.pcHi);
-            push(regs.pcLo);
-            regs.flags.i = 1;
             INSN_BRANCH(bus->memRead16(VECTOR_BRK));
             return INSN_DONE(7, "BRK");
         }
@@ -174,10 +176,9 @@ long Cpu::handleColumn0(Byte highNybble) {
         case 0x3: DO_BRANCH(regs.flags.n == 1, "BMI");
 
         case 0x4: {
-            INSN_BRANCH(pullWord() + 1);
-
             regs.flags.bits = pull();
             regs.flags.b = 0;
+            INSN_BRANCH(pullWord()); // NOTE: Unlike RTS, no +1 here
             return INSN_DONE(6, "RTI");
         }
 
