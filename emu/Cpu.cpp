@@ -92,9 +92,8 @@ long Cpu::doTick(Byte opcode) {
         case 0x6c: {
             Word indAddr = getPcWord();
             // The infamous JMP chip bug
-            Byte lsb = bus->memRead8(indAddr);
-            Byte msb = bus->memRead8((indAddr & 0xff00) | Byte((indAddr + 1) & 0xff));
-            INSN_BRANCH((msb << 8) | lsb);
+            INSN_BRANCH(buggyMemRead16(indAddr));
+
             return INSN_DONE(3, "JMP ($0x%04x)", indAddr);
         }
 
@@ -501,7 +500,7 @@ long Cpu::handleColumn159D(Byte opcode) {
         case 0:
             fmt = "%s ($0x%02x, X)";
             addrVal = getPcByte();
-            effectiveAddr = bus->memRead16((addrVal + regs.x) & 0xff);
+            effectiveAddr = buggyMemRead16((addrVal + regs.x) & 0xff);
             break;
 
         case 1:
@@ -525,7 +524,7 @@ long Cpu::handleColumn159D(Byte opcode) {
         case 4:
             fmt = "%s (0x%02x), Y";
             addrVal = getPcByte();
-            effectiveAddr = bus->memRead16(addrVal) + regs.y;
+            effectiveAddr = buggyMemRead16(addrVal) + regs.y;
             break;
 
         case 5:

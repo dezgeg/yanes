@@ -47,6 +47,16 @@ class Cpu {
     Bus* bus;
     Regs regs;
 
+    inline Word buggyAddrSum(Word addr, Byte delta) {
+        return (addr & 0xff00) | Byte((addr + delta) & 0xff);
+    }
+
+    Word buggyMemRead16(Word addr) {
+        Byte lsb = bus->memRead8(addr);
+        Byte msb = bus->memRead8(buggyAddrSum(addr, 1));
+        return (msb << 8) | lsb;
+    }
+
     Byte getPcByte() {
         Byte ret = bus->memRead8(regs.pc);
         regs.pc++;
