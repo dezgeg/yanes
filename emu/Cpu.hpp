@@ -23,6 +23,7 @@ struct Regs {
             bool i : 1;
             bool d : 1;
             bool b : 1;
+            bool _pad : 1;
             bool v : 1;
             bool n : 1;
         };
